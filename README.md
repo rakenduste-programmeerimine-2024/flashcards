@@ -5,6 +5,7 @@ Veebirakendus, mis võimaldab kasutajatel luua ja kasutada mõistekaarte õppimi
 
 Autorid:
 Karmen Klaasen
+Kryslin Rass
 
 FUNKTSIONAALSUSTE NIMEKIRI:
 
