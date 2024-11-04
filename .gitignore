@@ -29,6 +29,13 @@ yarn-error.log*
 .env*.local
 .env
 
+# Supabase local configuration files
+supabase/config.toml
+
+# Ignore Docker-related files
+docker-compose.yml
+Dockerfile
+
 # vercel
 .vercel
 
