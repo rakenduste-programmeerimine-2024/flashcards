@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@/utils/supabase/client"; // Import the createClient function
+import { createClient } from "@/utils/supabase/client";
 import { SubmitButton } from "@/components/submit-button";
 
-const supabaseClient = createClient(); // Initialize the Supabase client
+const supabaseClient = createClient();
 
 export default function ProfileEdit({ email }: { email: string }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -44,7 +44,7 @@ export default function ProfileEdit({ email }: { email: string }) {
 
       if (user) {
         console.log("Updated user retrieved:", user);
-        setNewEmail(user.email || ""); // Update the email state with the new value
+        setNewEmail(user.email || "");
       }
     } catch (error) {
       console.error("Error fetching updated user:", error);
@@ -90,7 +90,6 @@ export default function ProfileEdit({ email }: { email: string }) {
         console.log("Email updated successfully");
         setIsEditing(false);
 
-        // Fetch the updated user profile
         await fetchUpdatedUser();
       }
     } catch (error) {
@@ -110,7 +109,7 @@ export default function ProfileEdit({ email }: { email: string }) {
             className="border p-1 rounded"
           />
         ) : (
-          newEmail // Display the updated email
+          newEmail
         )}
       </p>
 
