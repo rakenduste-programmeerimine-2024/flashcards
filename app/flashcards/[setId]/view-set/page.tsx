@@ -16,6 +16,7 @@ type Card = {
 type FlashcardSet = {
   id: string;
   title: string;
+  description: string;
   user_id: string;
 };
 
@@ -41,7 +42,7 @@ export default function ViewSetPage() {
       // Fetch flashcard set details
       const { data: set, error: setError } = await supabase
         .from('flashcard_set')
-        .select('id, title, user_id') // Include user_id in the select
+        .select('id, title, description, user_id') // Include user_id in the select
         .eq('id', setId)
         .single();
 
@@ -74,6 +75,7 @@ export default function ViewSetPage() {
       {flashcardSet && (
         <div>
           <h1>{flashcardSet.title}</h1>
+          <h2>{flashcardSet.description}</h2>
           <ul>
             {cards.map((card) => (
               <li key={card.id}>

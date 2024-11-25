@@ -16,6 +16,7 @@ type Card = {
 type FlashcardSet = {
   title: string;
   description: string;
+  is_public: boolean;
 };
 
 export default function EditSetPage() {
@@ -23,7 +24,7 @@ export default function EditSetPage() {
   const router = useRouter();
   const setId = params.setId as string;
   const [cards, setCards] = useState<Card[]>([]);
-  const [flashcardSet, setFlashcardSet] = useState<FlashcardSet>({ title: '', description: '' });
+  const [flashcardSet, setFlashcardSet] = useState<FlashcardSet>({ title: '', description: '', is_public: false });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [newCards, setNewCards] = useState<Card[]>([]);
@@ -43,7 +44,7 @@ export default function EditSetPage() {
 
       const { data: set, error: setError } = await supabase
         .from('flashcard_set')
-        .select('user_id, title, description')
+        .select('user_id, title, description, is_public')
         .eq('id', setId)
         .single();
 
@@ -58,7 +59,7 @@ export default function EditSetPage() {
         return;
       }
 
-      setFlashcardSet({ title: set.title, description: set.description });
+      setFlashcardSet({ title: set.title, description: set.description, is_public: set.is_public || false });
       fetchCards();
     };
 
@@ -84,6 +85,7 @@ export default function EditSetPage() {
       .update({
         title: flashcardSet.title,
         description: flashcardSet.description,
+        is_public: flashcardSet.is_public,
       })
       .eq('id', setId);
 
@@ -161,6 +163,15 @@ export default function EditSetPage() {
           value={flashcardSet.description}
           onChange={(e) => setFlashcardSet({ ...flashcardSet, description: e.target.value })}
         />
+        <div>
+          <label>Privacy</label>
+          <input
+            type="checkbox"
+            checked={flashcardSet.is_public}
+            onChange={(e) => setFlashcardSet({ ...flashcardSet, is_public: e.target.checked })}
+          />
+          <span>{flashcardSet.is_public ? 'Public' : 'Private'}</span>
+        </div>
         <button onClick={handleSaveSet}>Save Set</button>
       </div>
 
