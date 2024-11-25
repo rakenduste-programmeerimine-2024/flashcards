@@ -18,8 +18,7 @@ export default async function ProfilePage() {
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
       <div className="w-full">
-        <h2 className="font-bold text-2xl mb-4">My Profile</h2>
-
+        <h2 className="font-bold text-2xl mb-4">My profile</h2>
         <ProfileEdit email={username} />
       </div>
     </div>

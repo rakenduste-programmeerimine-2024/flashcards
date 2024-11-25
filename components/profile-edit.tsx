@@ -13,6 +13,8 @@ export default function ProfileEdit({ email }: { email: string }) {
   const [newPassword, setNewPassword] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [setsCount, setSetsCount] = useState(0);
+  const [accountCreatedAt, setAccountCreatedAt] = useState<string | null>(null);
 
   const getSession = async () => {
     try {
@@ -27,8 +29,31 @@ export default function ProfileEdit({ email }: { email: string }) {
       }
 
       setIsAuthenticated(!!session?.user);
+
+      if (session?.user) {''
+        fetchUserSets(session.user.id);
+        setAccountCreatedAt(session.user.created_at); 
+      }
     } catch (error) {
       console.error("Error in getSession:", error);
+    }
+  };
+
+  const fetchUserSets = async (userId: string) => {
+    try {
+      const { data, error } = await supabaseClient
+        .from("flashcard_set")
+        .select("id")
+        .eq("user_id", userId);
+
+      if (error) {
+        console.error("Error fetching flashcard sets:", error.message);
+        return;
+      }
+
+      setSetsCount(data?.length || 0);
+    } catch (error) {
+      console.error("Error fetching flashcard sets:", error);
     }
   };
 
@@ -38,6 +63,10 @@ export default function ProfileEdit({ email }: { email: string }) {
     const { data: authListener } = supabaseClient.auth.onAuthStateChange(
       (event, session) => {
         setIsAuthenticated(!!session?.user);
+        if (session?.user) {
+          fetchUserSets(session.user.id);
+          setAccountCreatedAt(session.user.created_at);
+        }
       }
     );
 
@@ -68,7 +97,9 @@ export default function ProfileEdit({ email }: { email: string }) {
     }
   };
 
-  const buttonTextColor = theme === "dark" ? "text-white" : "text-black";
+  const formattedAccountCreationDate = accountCreatedAt
+    ? new Date(accountCreatedAt).toLocaleDateString()
+    : "Loading...";
 
   return (
     <div className="flex flex-col gap-4">
@@ -98,7 +129,7 @@ export default function ProfileEdit({ email }: { email: string }) {
               onClick={handleSavePasswordClick}
               className={`hover:underline text-sm`}
             >
-              Save Password
+              Save password
             </SubmitButton>
           </div>
         ) : (
@@ -106,10 +137,19 @@ export default function ProfileEdit({ email }: { email: string }) {
             onClick={() => setIsEditingPassword(true)}
             className={`hover:underline text-sm`}
           >
-            Change Password
+            Change password
           </SubmitButton>
         )}
       </div>
+
+      <div className="flex items-center gap-2">
+        <p className="text-sm">Flashcard sets: {setsCount}</p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <p className="text-sm">Account created at: {formattedAccountCreationDate}</p>
+      </div>
+
     </div>
   );
 }
