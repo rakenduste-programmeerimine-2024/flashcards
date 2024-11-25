@@ -149,6 +149,7 @@ export default function ProfileEdit({ email }: { email: string }) {
       <div className="flex items-center gap-2">
         <p className="text-sm">Account created at: {formattedAccountCreationDate}</p>
       </div>
+
     </div>
   );
 }

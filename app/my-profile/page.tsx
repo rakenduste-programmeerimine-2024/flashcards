@@ -1,19 +1,19 @@
-import { createClient } from "@/utils/supabase/server" 
-import { redirect } from "next/navigation"
-import ProfileEdit from "@/components/profile-edit" 
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
+import ProfileEdit from "@/components/profile-edit";
 
 export default async function ProfilePage() {
-  const supabase = createClient()
+  const supabase = createClient();
 
   const {
     data: { user },
-  } = await (await supabase).auth.getUser()
+  } = await (await supabase).auth.getUser();
 
   if (!user) {
-    return redirect("/sign-in")
+    return redirect("/sign-in");
   }
 
-  const username = user.user_metadata?.email || user.email
+  const username = user.user_metadata?.email || user.email;
 
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
@@ -22,5 +22,5 @@ export default async function ProfilePage() {
         <ProfileEdit email={username} />
       </div>
     </div>
-  )
+  );
 }
