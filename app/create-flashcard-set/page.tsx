@@ -1,4 +1,4 @@
-"use client"; 
+/*"use client"; 
 
 import { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
@@ -9,6 +9,7 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase environment variables");
 }
+
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export default function CreateFlashcardSet() {
@@ -24,6 +25,7 @@ export default function CreateFlashcardSet() {
     setCards(newCards);
   };
 
+
   const addNewCard = () => {
     setCards([...cards, { term: "", definition: "" }]);
   };
@@ -34,13 +36,17 @@ export default function CreateFlashcardSet() {
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
-    
-    try {
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-      if (authError || !user) {
+    try {
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+      // If there is an error or session is null (meaning the user is not authenticated)
+      if (sessionError || !sessionData?.session?.user) {
         throw new Error("User is not authenticated.");
       }
+
+      const user = sessionData.session.user;
+
       
       // Insert the flashcard set first
       const { data: flashcardSet, error: setError } = await supabase
@@ -50,7 +56,9 @@ export default function CreateFlashcardSet() {
           description,
           user_id: user.id,
           is_public: false,
+
           created_date: new Date().toISOString(), 
+
         }])
         .select()
         .single();
@@ -138,3 +146,4 @@ export default function CreateFlashcardSet() {
     </div>
   );
 }
+*/
