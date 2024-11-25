@@ -24,6 +24,7 @@ export default function CreateSetPage() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [isPublic, setIsPublic] = useState(false)
 
   const [cards, setCards] = useState<{ term: string; definition: string }[]>([
     { term: '', definition: '' },
@@ -66,6 +67,7 @@ export default function CreateSetPage() {
         title,
         description,
         user_id: userId,
+        is_public: isPublic,
         created_date: new Date().toISOString(), // Ensure a timestamp is passed
       })
       .select('id'); // Get the flashcard set ID
@@ -160,6 +162,14 @@ export default function CreateSetPage() {
             <button type="button" onClick={() => handleDeleteCard(index)}>Delete Card</button>
           </div>
         ))}
+        <label>
+            <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(e) => setIsPublic(e.target.checked)}
+                />
+                Make this flashcard set public
+        </label>
 
         <button type="button" onClick={handleAddCard}>Add Card</button>
         <button type="submit">Create Set</button>

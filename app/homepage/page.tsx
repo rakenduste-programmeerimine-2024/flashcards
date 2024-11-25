@@ -47,7 +47,7 @@ export default async function HomePage() {
           <p>No flashcard sets found. Create one to get started.</p>
         )}
 
-        <Link href="/create-flashcard-set">
+        <Link href="/flashcards/create-set">
           <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
             Create a New Flashcard Set
           </button>
