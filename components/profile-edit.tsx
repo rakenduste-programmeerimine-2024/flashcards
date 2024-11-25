@@ -1,94 +1,134 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { supabaseClient } from "@/utils/supabase/client" 
-import { SubmitButton } from "@/components/submit-button"
+import { useState, useEffect } from "react";
+import { createClient } from "@/utils/supabase/client"; // Import the createClient function
+import { SubmitButton } from "@/components/submit-button";
+
+const supabaseClient = createClient(); // Initialize the Supabase client
 
 export default function ProfileEdit({ email }: { email: string }) {
-  const [isEditing, setIsEditing] = useState(false)
-  const [newEmail, setNewEmail] = useState(email)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isEditing, setIsEditing] = useState(false);
+  const [newEmail, setNewEmail] = useState(email);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const getSession = async () => {
-    const { data: { session } } = await supabaseClient.auth.getSession()
-    console.log("Session retrieved:", session)  
-    if (session?.user) {
-      setIsAuthenticated(true)
-    } else {
-      setIsAuthenticated(false)
+    try {
+      const {
+        data: { session },
+        error,
+      } = await supabaseClient.auth.getSession();
+
+      if (error) {
+        console.error("Error fetching session:", error.message);
+        return;
+      }
+
+      console.log("Session retrieved:", session);
+      setIsAuthenticated(!!session?.user);
+    } catch (error) {
+      console.error("Error in getSession:", error);
     }
-  }
+  };
+
+  const fetchUpdatedUser = async () => {
+    try {
+      const {
+        data: { user },
+        error,
+      } = await supabaseClient.auth.getUser();
+
+      if (error) {
+        console.error("Error fetching updated user:", error.message);
+        return;
+      }
+
+      if (user) {
+        console.log("Updated user retrieved:", user);
+        setNewEmail(user.email || ""); // Update the email state with the new value
+      }
+    } catch (error) {
+      console.error("Error fetching updated user:", error);
+    }
+  };
 
   useEffect(() => {
-    
-    getSession()
+    getSession();
 
-    const { data: authListener } = supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state change:", event, session) 
-      if (session?.user) {
-        setIsAuthenticated(true)
-      } else {
-        setIsAuthenticated(false)
+    const { data: authListener } = supabaseClient.auth.onAuthStateChange(
+      (event, session) => {
+        console.log("Auth state change:", event, session);
+        setIsAuthenticated(!!session?.user);
       }
-    })
+    );
 
     return () => {
-      authListener?.subscription?.unsubscribe()
-    }
-  }, [])
+      authListener?.subscription?.unsubscribe();
+    };
+  }, []);
 
   const handleEditClick = () => {
-    setIsEditing((prev) => !prev)
-  }
+    setIsEditing((prev) => !prev);
+  };
 
   const handleSaveClick = async () => {
-    await getSession()
-    console.log("Is authenticated before save:", isAuthenticated) 
+    await getSession();
+    console.log("Is authenticated before save:", isAuthenticated);
 
     if (!isAuthenticated) {
-      console.error("User is not authenticated")
-      return
+      console.error("User is not authenticated");
+      return;
     }
 
     try {
-
       const { error } = await supabaseClient.auth.updateUser({
         email: newEmail,
-      })
+      });
 
       if (error) {
-        console.error("Error updating email:", error.message)
+        console.error("Error updating email:", error.message);
       } else {
-        console.log("Email updated successfully")
-        setIsEditing(false)
+        console.log("Email updated successfully");
+        setIsEditing(false);
+
+        // Fetch the updated user profile
+        await fetchUpdatedUser();
       }
     } catch (error) {
-      console.error("Error updating email:", error)
+      console.error("Error updating email:", error);
     }
-  }
+  };
 
   return (
     <div className="flex items-center gap-2">
-      <p className="text-sm">Email: {isEditing ? (
-        <input
-          type="email"
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
-          className="border p-1 rounded"
-        />
-      ) : (
-        email
-      )}</p>
+      <p className="text-sm">
+        Email:{" "}
+        {isEditing ? (
+          <input
+            type="email"
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
+            className="border p-1 rounded"
+          />
+        ) : (
+          newEmail // Display the updated email
+        )}
+      </p>
 
       {isEditing ? (
-        <SubmitButton onClick={handleSaveClick} className="text-blue-500 hover:underline text-sm">
+        <SubmitButton
+          onClick={handleSaveClick}
+          className="text-blue-500 hover:underline text-sm"
+        >
           Save
         </SubmitButton>
       ) : (
-        <SubmitButton onClick={handleEditClick} className="text-blue-500 hover:underline text-sm">
+        <SubmitButton
+          onClick={handleEditClick}
+          className="text-blue-500 hover:underline text-sm"
+        >
           Edit
         </SubmitButton>
       )}
     </div>
-  )
+  );
 }
