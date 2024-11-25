@@ -3,13 +3,18 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { SubmitButton } from "@/components/submit-button";
+import { useTheme } from "next-themes";
 
 const supabaseClient = createClient();
 
 export default function ProfileEdit({ email }: { email: string }) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [newEmail, setNewEmail] = useState(email);
+  const { theme } = useTheme();
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState("");
+  const [currentPassword, setCurrentPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [setsCount, setSetsCount] = useState(0);
+  const [accountCreatedAt, setAccountCreatedAt] = useState<string | null>(null);
 
   const getSession = async () => {
     try {
@@ -23,31 +28,32 @@ export default function ProfileEdit({ email }: { email: string }) {
         return;
       }
 
-      console.log("Session retrieved:", session);
       setIsAuthenticated(!!session?.user);
+
+      if (session?.user) {''
+        fetchUserSets(session.user.id);
+        setAccountCreatedAt(session.user.created_at); 
+      }
     } catch (error) {
       console.error("Error in getSession:", error);
     }
   };
 
-  const fetchUpdatedUser = async () => {
+  const fetchUserSets = async (userId: string) => {
     try {
-      const {
-        data: { user },
-        error,
-      } = await supabaseClient.auth.getUser();
+      const { data, error } = await supabaseClient
+        .from("flashcard_set")
+        .select("id")
+        .eq("user_id", userId);
 
       if (error) {
-        console.error("Error fetching updated user:", error.message);
+        console.error("Error fetching flashcard sets:", error.message);
         return;
       }
 
-      if (user) {
-        console.log("Updated user retrieved:", user);
-        setNewEmail(user.email || "");
-      }
+      setSetsCount(data?.length || 0);
     } catch (error) {
-      console.error("Error fetching updated user:", error);
+      console.error("Error fetching flashcard sets:", error);
     }
   };
 
@@ -56,8 +62,11 @@ export default function ProfileEdit({ email }: { email: string }) {
 
     const { data: authListener } = supabaseClient.auth.onAuthStateChange(
       (event, session) => {
-        console.log("Auth state change:", event, session);
         setIsAuthenticated(!!session?.user);
+        if (session?.user) {
+          fetchUserSets(session.user.id);
+          setAccountCreatedAt(session.user.created_at);
+        }
       }
     );
 
@@ -66,14 +75,7 @@ export default function ProfileEdit({ email }: { email: string }) {
     };
   }, []);
 
-  const handleEditClick = () => {
-    setIsEditing((prev) => !prev);
-  };
-
-  const handleSaveClick = async () => {
-    await getSession();
-    console.log("Is authenticated before save:", isAuthenticated);
-
+  const handleSavePasswordClick = async () => {
     if (!isAuthenticated) {
       console.error("User is not authenticated");
       return;
@@ -81,53 +83,72 @@ export default function ProfileEdit({ email }: { email: string }) {
 
     try {
       const { error } = await supabaseClient.auth.updateUser({
-        email: newEmail,
+        password: newPassword,
       });
 
       if (error) {
-        console.error("Error updating email:", error.message);
+        console.error("Error updating password:", error.message);
       } else {
-        console.log("Email updated successfully");
-        setIsEditing(false);
-
-        await fetchUpdatedUser();
+        console.log("Password updated successfully");
+        setIsEditingPassword(false);
       }
     } catch (error) {
-      console.error("Error updating email:", error);
+      console.error("Error updating password:", error);
     }
   };
 
-  return (
-    <div className="flex items-center gap-2">
-      <p className="text-sm">
-        Email:{" "}
-        {isEditing ? (
-          <input
-            type="email"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
-            className="border p-1 rounded"
-          />
-        ) : (
-          newEmail
-        )}
-      </p>
+  const formattedAccountCreationDate = accountCreatedAt
+    ? new Date(accountCreatedAt).toLocaleDateString()
+    : "Loading...";
 
-      {isEditing ? (
-        <SubmitButton
-          onClick={handleSaveClick}
-          className="text-blue-500 hover:underline text-sm"
-        >
-          Save
-        </SubmitButton>
-      ) : (
-        <SubmitButton
-          onClick={handleEditClick}
-          className="text-blue-500 hover:underline text-sm"
-        >
-          Edit
-        </SubmitButton>
-      )}
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center gap-2">
+        <p className="text-sm">Email: {email}</p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <p className="text-sm">Password: ***** </p>
+        {isEditingPassword ? (
+          <div className="flex flex-col gap-2">
+            <input
+              type="password"
+              placeholder="Current password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="border p-1 rounded"
+            />
+            <input
+              type="password"
+              placeholder="New password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="border p-1 rounded"
+            />
+            <SubmitButton
+              onClick={handleSavePasswordClick}
+              className={`hover:underline text-sm`}
+            >
+              Save password
+            </SubmitButton>
+          </div>
+        ) : (
+          <SubmitButton
+            onClick={() => setIsEditingPassword(true)}
+            className={`hover:underline text-sm`}
+          >
+            Change password
+          </SubmitButton>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        <p className="text-sm">Flashcard sets: {setsCount}</p>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <p className="text-sm">Account created at: {formattedAccountCreationDate}</p>
+      </div>
     </div>
   );
 }
