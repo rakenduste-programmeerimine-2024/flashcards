@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '../../../../utils/supabase/client';
 
 const supabase = createClient();
@@ -15,6 +15,7 @@ type Card = {
 
 export default function StudyPage() {
   const params = useParams();
+  const router = useRouter();
   const setId = params.setId as string;
   const [cards, setCards] = useState<Card[]>([]);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
@@ -68,6 +69,10 @@ export default function StudyPage() {
     setStudyCompleted(false);
   };
 
+  const goToViewSetPage = () => {
+    router.push(`/flashcards/${setId}/view-set`);
+  };
+
   return (
     <div>
       {studyCompleted ? (
@@ -119,6 +124,14 @@ export default function StudyPage() {
                 Next
                 </button>
             </div>
+            <div className="mt-4 flex justify-center">
+                <button
+                  onClick={goToViewSetPage}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                >
+                  Back to Set
+                </button>
+              </div>
             </div>
         )}
         </div>
