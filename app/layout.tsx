@@ -6,7 +6,7 @@ import { hasEnvVars } from "@/utils/supabase/check-env-vars"
 import { ThemeProvider } from "next-themes"
 import Link from "next/link"
 import "./globals.css"
-import { GeistSans } from "geist/font"
+import { GeistSans } from "geist/font/sans"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
