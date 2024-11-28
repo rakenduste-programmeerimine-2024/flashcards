@@ -22,7 +22,7 @@ export default async function Signup(props: {
       <div className="flex flex-row items-center justify-center w-full max-w-4xl gap-20"> 
 
         <div className="flex-shrink-0">
-          <img src="../images/logo.png" alt="Logo" className="h-34" />
+          <img src="/images/logo.png" alt="Logo" className="h-34" />
         </div>
 
         <form className="flex flex-col w-full max-w-md">

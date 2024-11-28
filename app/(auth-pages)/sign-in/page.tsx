@@ -14,7 +14,7 @@ export default async function Login(props: { searchParams: Promise<Message> }) {
 
         {/* Logo Section */}
         <div className="flex-shrink-0">
-          <img src="../images/logo.png" alt="Logo" className="h-34" />
+          <img src="/images/logo.png" alt="Logo" className="h-34" />
         </div>
 
         {/* Sign-in Form */}
