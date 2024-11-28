@@ -22,6 +22,9 @@ export default function StudyPage() {
   const [showDefinition, setShowDefinition] = useState(false);
   const [studyCompleted, setStudyCompleted] = useState(false);
   const [showTermFirst, setShowTermFirst] = useState(true);
+  const [progressTracking, setProgressTracking] = useState(false);
+  const [knownCards, setKnownCards] = useState(0);
+  const [studyAgainCards, setStudyAgainCards] = useState(0);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -58,6 +61,27 @@ export default function StudyPage() {
     setShowDefinition(false); // Reset flip state
   };
 
+  const handleCheck = () => {
+    setKnownCards((prev) => prev + 1);
+    moveToNextCard();
+  };
+
+  // Handle progress tracking mode: study again the card
+  const handleStudyAgain = () => {
+    setStudyAgainCards((prev) => prev + 1);
+    moveToNextCard();
+  };
+
+  // Move to the next card
+  const moveToNextCard = () => {
+    if (currentCardIndex + 1 >= cards.length) {
+      setStudyCompleted(true);
+    } else {
+      setCurrentCardIndex((prevIndex) => prevIndex + 1);
+      setShowDefinition(false); // Reset flip state
+    }
+  };
+
   const restartStudy = () => {
     setCurrentCardIndex(0);
     setShowDefinition(false);
@@ -80,6 +104,16 @@ export default function StudyPage() {
         <div className="text-center p-4">
           <h2 className="text-xl font-bold">Congratulations!</h2>
           <p>You have finished studying all the cards in this set.</p>
+          {progressTracking && (
+            <div>
+              <p className="mt-2">
+                <strong>Known Cards:</strong> {knownCards}
+              </p>
+              <p>
+                <strong>Need to Study Again:</strong> {studyAgainCards}
+              </p>
+            </div>
+          )}
           <div className="mt-4 flex justify-center gap-4">
           <button
               onClick={goToLastCard}
@@ -117,6 +151,24 @@ export default function StudyPage() {
                   </div>
                 </label>
               </div>
+              {/* Toggle for progress tracking */}
+              <div className="flex justify-center mb-4">
+                <label className="flex items-center gap-2">
+                  <span>Progress Tracking</span>
+                  <div
+                    onClick={() => setProgressTracking(!progressTracking)}
+                    className={`relative inline-block w-10 h-6 cursor-pointer ${
+                      progressTracking ? 'bg-green-500' : 'bg-gray-300'
+                    } rounded-full`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                        progressTracking ? 'transform translate-x-4' : ''
+                      }`}
+                    ></span>
+                  </div>
+                </label>
+              </div>
 
               <div
                 onClick={flipCard}
@@ -135,6 +187,23 @@ export default function StudyPage() {
 
               {/* Navigation buttons */}
               <div className="mt-4 flex justify-between">
+              {progressTracking ? (
+                  <>
+                    <button
+                      onClick={handleStudyAgain}
+                      className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                    >
+                      X
+                    </button>
+                    <button
+                      onClick={handleCheck}
+                      className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                    >
+                      Check
+                    </button>
+                  </>
+                ) : (
+                  <>
                   <button
                   onClick={prevCard}
                   className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
@@ -147,6 +216,8 @@ export default function StudyPage() {
                   >
                   Next
                   </button>
+                  </>
+                )}
               </div>
               <div className="mt-4 flex justify-center">
                   <button
@@ -157,7 +228,7 @@ export default function StudyPage() {
                   </button>
                 </div>
               </div>
-          )}
+            )}
           </div>
         )}
     </div>
