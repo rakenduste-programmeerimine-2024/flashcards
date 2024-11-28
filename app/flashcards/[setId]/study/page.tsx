@@ -21,6 +21,7 @@ export default function StudyPage() {
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showDefinition, setShowDefinition] = useState(false);
   const [studyCompleted, setStudyCompleted] = useState(false);
+  const [showTermFirst, setShowTermFirst] = useState(true);
 
   useEffect(() => {
     const fetchCards = async () => {
@@ -96,45 +97,68 @@ export default function StudyPage() {
         </div>
       ) : (
         <div>
-        {cards.length > 0 && (
+          {cards.length > 0 && (
             <div>
-            <div
+              {/* Toggle for term/definition first */}
+              <div className="flex justify-center mb-4">
+                <label className="flex items-center gap-2">
+                  <span>Show Term First</span>
+                  <div
+                    onClick={() => setShowTermFirst(!showTermFirst)}
+                    className={`relative inline-block w-10 h-6 cursor-pointer ${
+                      showTermFirst ? 'bg-blue-500' : 'bg-gray-300'
+                    } rounded-full`}
+                  >
+                    <span
+                      className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform ${
+                        showTermFirst ? 'transform translate-x-4' : ''
+                      }`}
+                    ></span>
+                  </div>
+                </label>
+              </div>
+
+              <div
                 onClick={flipCard}
                 className="card bg-gray-100 border p-4 text-center cursor-pointer"
                 style={{ width: '300px', margin: '0 auto' }}
-            >
-                <h2>{showDefinition ? cards[currentCardIndex].definition : cards[currentCardIndex].term}</h2>
-            </div>
-            <p className="text-center mt-2 text-gray-600">
-                {currentCardIndex + 1} / {cards.length}
-            </p>
-
-            {/* Navigation buttons */}
-            <div className="mt-4 flex justify-between">
-                <button
-                onClick={prevCard}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                Prev
-                </button>
-                <button
-                onClick={nextCard}
-                className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                Next
-                </button>
-            </div>
-            <div className="mt-4 flex justify-center">
-                <button
-                  onClick={goToViewSetPage}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
-                >
-                  Back to Set
-                </button>
+              >
+                <h2>
+                  {showDefinition === showTermFirst
+                    ? cards[currentCardIndex].definition
+                    : cards[currentCardIndex].term}
+                </h2>
               </div>
-            </div>
-        )}
-        </div>
+              <p className="text-center mt-2 text-gray-600">
+                {currentCardIndex + 1} / {cards.length}
+              </p>
+
+              {/* Navigation buttons */}
+              <div className="mt-4 flex justify-between">
+                  <button
+                  onClick={prevCard}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                  Prev
+                  </button>
+                  <button
+                  onClick={nextCard}
+                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                  Next
+                  </button>
+              </div>
+              <div className="mt-4 flex justify-center">
+                  <button
+                    onClick={goToViewSetPage}
+                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  >
+                    Back to Set
+                  </button>
+                </div>
+              </div>
+          )}
+          </div>
         )}
     </div>
   );
