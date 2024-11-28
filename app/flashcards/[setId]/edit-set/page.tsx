@@ -139,6 +139,36 @@ export default function EditSetPage() {
     }
   };
 
+  const handleDeleteSet = async () => {
+    const confirmation = window.confirm('Are you sure you want to delete this flashcard set? This action cannot be undone.');
+    if (!confirmation) return;
+
+    // Delete the cards related to the flashcard set
+    const { error: deleteCardsError } = await supabase
+      .from('card')
+      .delete()
+      .eq('flashcard_set_id', setId);
+
+    if (deleteCardsError) {
+      setError(deleteCardsError.message);
+      return;
+    }
+
+    // Delete the flashcard set itself
+    const { error: deleteSetError } = await supabase
+      .from('flashcard_set')
+      .delete()
+      .eq('id', setId);
+
+    if (deleteSetError) {
+      setError(deleteSetError.message);
+    } else {
+      setSuccess('Flashcard set deleted successfully!');
+      router.push('/flashcards/your-sets'); // Redirect to 'Your Sets' page after deletion
+    }
+  };
+
+
   if (error) {
     return <p style={{ color: 'red' }}>{error}</p>;
   }
@@ -173,6 +203,9 @@ export default function EditSetPage() {
           <span>{flashcardSet.is_public ? 'Public' : 'Private'}</span>
         </div>
         <button onClick={handleSaveSet}>Save Set</button>
+        <button onClick={handleDeleteSet} style={{ backgroundColor: 'red', color: 'white', marginTop: '10px' }}>
+          Delete Flashcard Set
+        </button>
       </div>
 
       <ul>
