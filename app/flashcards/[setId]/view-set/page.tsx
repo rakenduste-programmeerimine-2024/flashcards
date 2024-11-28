@@ -91,6 +91,12 @@ export default function ViewSetPage() {
               Edit
             </button>
           )}
+          <button
+              onClick={() => router.push(`/flashcards/${flashcardSet.id}/study`)}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Study
+            </button>
         </div>
       )}
     </div>
