@@ -56,12 +56,38 @@ export default function StudyPage() {
     setShowDefinition(false); // Reset flip state
   };
 
+  const restartStudy = () => {
+    setCurrentCardIndex(0);
+    setShowDefinition(false);
+    setStudyCompleted(false);
+  };
+
+  const goToLastCard = () => {
+    setCurrentCardIndex(cards.length - 1);
+    setShowDefinition(false);
+    setStudyCompleted(false);
+  };
+
   return (
     <div>
       {studyCompleted ? (
         <div className="text-center p-4">
           <h2 className="text-xl font-bold">Congratulations!</h2>
           <p>You have finished studying all the cards in this set.</p>
+          <div className="mt-4 flex justify-center gap-4">
+          <button
+              onClick={goToLastCard}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+            >
+              Go Back
+            </button>
+            <button
+              onClick={restartStudy}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Start Over
+            </button>
+          </div>
         </div>
       ) : (
         <div>
