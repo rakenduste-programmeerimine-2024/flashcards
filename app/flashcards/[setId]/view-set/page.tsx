@@ -69,34 +69,44 @@ export default function ViewSetPage() {
   }, [setId]);
 
   return (
-    <div>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+    <div className="container mx-auto p-4">
+      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Error Message */}
 
       {flashcardSet && (
         <div>
-          <h1>{flashcardSet.title}</h1>
-          <h2>{flashcardSet.description}</h2>
-          <ul>
-            {cards.map((card) => (
-              <li key={card.id}>
-                <strong>{card.term}:</strong> {card.definition}
-              </li>
-            ))}
-          </ul>
-          {userId === flashcardSet.user_id && ( // Check ownership
+          <h1 className="text-2xl font-bold mb-4">{flashcardSet.title}</h1>
+          <h2 className="text-lg text-gray-700 mb-6">{flashcardSet.description}</h2>
+
+          {/* Buttons */}
+          <div className="mb-6">
+            {userId === flashcardSet.user_id && (
+              <button
+                onClick={() => router.push(`/flashcards/${flashcardSet.id}/edit-set`)}
+                className="mr-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Edit
+              </button>
+            )}
             <button
-              onClick={() => router.push(`/flashcards/${flashcardSet.id}/edit-set`)}
-              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Edit
-            </button>
-          )}
-          <button
               onClick={() => router.push(`/flashcards/${flashcardSet.id}/study`)}
               className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             >
               Study
             </button>
+          </div>
+
+          {/* Cards */}
+          <div className="space-y-4">
+            {cards.map((card) => (
+              <div
+                key={card.id}
+                className="flex justify-between items-center border p-4 rounded shadow-sm bg-white"
+              >
+                <span className="font-semibold text-gray-900">{card.term}</span>
+                <span className="text-gray-600">{card.definition}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
