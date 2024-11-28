@@ -3,10 +3,10 @@ import { EnvVarWarning } from "@/components/env-var-warning"
 import HeaderAuth from "@/components/header-auth"
 import { ThemeSwitcher } from "@/components/theme-switcher"
 import { hasEnvVars } from "@/utils/supabase/check-env-vars"
-import { GeistSans } from "geist/font/sans"
 import { ThemeProvider } from "next-themes"
 import Link from "next/link"
 import "./globals.css"
+import { GeistSans } from "geist/font"
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
