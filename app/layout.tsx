@@ -33,7 +33,7 @@ export default function RootLayout({
               <div className="flex items-center gap-5 p-3 px-5">
                 {/* Logo */}
                 <img
-                  src="../images/logo.png"
+                  src="/images/logo.png"
                   alt="Logo"
                   className="h-14 w-auto"
                 />
