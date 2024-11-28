@@ -27,7 +27,7 @@ export default async function AuthButton() {
           <div className="flex gap-2">
             <Button
               asChild
-              size="lg" // Increased size
+              size="lg"
               variant={"outline"}
               disabled
               className="opacity-75 cursor-none pointer-events-none"
@@ -36,7 +36,7 @@ export default async function AuthButton() {
             </Button>
             <Button
               asChild
-              size="lg" // Increased size
+              size="lg"
               variant={"default"}
               disabled
               className="opacity-75 cursor-none pointer-events-none"
@@ -62,7 +62,7 @@ export default async function AuthButton() {
       </form>
     </div>
   ) : (
-    <div className="flex gap-4"> {/* Increased gap for better spacing */}
+    <div className="flex gap-4">
       <Button
         asChild
         variant={"outline"}

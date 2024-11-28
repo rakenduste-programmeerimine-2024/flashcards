@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '../../../../utils/supabase/client';
+import { FaStar, FaRegStar } from 'react-icons/fa'; // Import react-icons
 
 const supabase = createClient();
 
@@ -26,16 +27,16 @@ export default function ViewSetPage() {
   const setId = params.setId as string;
   const [flashcardSet, setFlashcardSet] = useState<FlashcardSet | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
-  const [error, setError] = useState('');
   const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false); // New loading state
+  const [addedToFavorites, setAddedToFavorites] = useState(false); // To track if added to favorites
 
   useEffect(() => {
     const fetchSetAndCards = async () => {
       // Get logged-in user's ID
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData?.user) {
-        setError(userError?.message || 'You must be logged in to view this set.');
-        return;
+        return; // Skip if the user is not logged in
       }
       setUserId(userData.user.id);
 
@@ -47,8 +48,7 @@ export default function ViewSetPage() {
         .single();
 
       if (setError) {
-        setError(setError.message);
-        return;
+        return; // Skip if an error occurs when fetching the set
       }
       setFlashcardSet(set);
 
@@ -59,19 +59,64 @@ export default function ViewSetPage() {
         .eq('flashcard_set_id', setId);
 
       if (cardsError) {
-        setError(cardsError.message);
+        return; // Skip if an error occurs when fetching the cards
       } else {
         setCards(cardsData || []);
+      }
+
+      // Check if this set is already favorited
+      const { data: favoriteData, error: favoriteError } = await supabase
+        .from('favorites')
+        .select('*')
+        .eq('user_id', userData.user.id)
+        .eq('flashcard_set_id', setId)
+        .single();
+
+      if (favoriteError && favoriteError.code !== 'PGRST116') {
+        return; // Skip if an error occurs while checking favorites
+      }
+
+      // Set the favorite status based on the query result
+      if (favoriteData) {
+        setAddedToFavorites(true); // This set is favorited
       }
     };
 
     if (setId) fetchSetAndCards();
   }, [setId]);
 
+  const handleAddRemoveFromFavorites = async () => {
+    if (!userId || !flashcardSet) return;
+
+    setLoading(true); // Set loading to true when the request is being processed
+
+    // If already in favorites, remove it
+    if (addedToFavorites) {
+      const { error } = await supabase
+        .from('favorites')
+        .delete()
+        .eq('user_id', userId)
+        .eq('flashcard_set_id', flashcardSet.id);
+
+      if (!error) {
+        setAddedToFavorites(false); // Update state to reflect the removal
+      }
+    } else {
+      // If not in favorites, add it
+      const { error } = await supabase
+        .from('favorites')
+        .insert({ user_id: userId, flashcard_set_id: flashcardSet.id });
+
+      if (!error) {
+        setAddedToFavorites(true); // Update state to reflect the addition
+      }
+    }
+
+    setLoading(false); // Reset loading state
+  };
+
   return (
     <div className="container mx-auto p-4">
-      {error && <p style={{ color: 'red' }}>{error}</p>} {/* Error Message */}
-
       {flashcardSet && (
         <div>
           <h1 className="text-2xl font-bold mb-4">{flashcardSet.title}</h1>
@@ -89,10 +134,18 @@ export default function ViewSetPage() {
             )}
             <button
               onClick={() => router.push(`/flashcards/${flashcardSet.id}/study`)}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="mr-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
             >
               Study
             </button>
+
+            {/* Add/Remove to Favorites Icon without button or box */}
+            <div
+              onClick={handleAddRemoveFromFavorites}
+              className={`cursor-pointer ${addedToFavorites ? 'text-yellow-500' : 'text-yellow-500'} text-3xl`}
+            >
+              {addedToFavorites ? <FaStar /> : <FaRegStar />} {/* Only the star icon */}
+            </div>
           </div>
 
           {/* Cards */}
