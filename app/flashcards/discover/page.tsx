@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
-import Link from "next/link";
+import Link from "next/link"
+import SortingDropdown from "@/components/sorting-dropdown" // Import the SortingDropdown component
 
 export default async function DiscoverPage() {
   const supabase = await createClient()
@@ -16,7 +17,7 @@ export default async function DiscoverPage() {
   // Fetch public flashcard sets created by other users
   const { data: flashcardSets, error } = await supabase
     .from("flashcard_set")
-    .select("id, title, user_id, is_public")
+    .select("id, title, user_id, is_public, created_date")
     .eq("is_public", true)
     .neq("user_id", user.id)
 
@@ -31,14 +32,9 @@ export default async function DiscoverPage() {
         <h2 className="font-bold text-2xl mb-4">Discover Flashcard Sets</h2>
 
         {flashcardSets && flashcardSets.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {flashcardSets.map((set) => (
-              <div key={set.id} className="flex justify-between items-center">
-                <Link href={`/flashcards/${set.id}/view-set`} className="text-blue-500 hover:underline">
-                  {set.title} <span className="text-gray-500">(Public)</span>
-                </Link>
-              </div>
-            ))}
+          <div className="w-full flex flex-col gap-4">
+            {/* Pass flashcardSets to the SortingDropdown component */}
+            <SortingDropdown flashcardSets={flashcardSets} />
           </div>
         ) : (
           <p>No public flashcard sets found. Explore and discover more!</p>

@@ -1,6 +1,6 @@
 import { createClient } from "@/utils/supabase/server"
 import { redirect } from "next/navigation"
-import Link from "next/link";
+import SortingDropdown from "@/components/sorting-dropdown" // Make sure the path is correct
 
 export default async function YourSetsPage() {
   const supabase = await createClient()
@@ -16,7 +16,7 @@ export default async function YourSetsPage() {
   // Fetch the user's own flashcard sets
   const { data: flashcardSets, error } = await supabase
     .from("flashcard_set")
-    .select("id, title, user_id")
+    .select("id, title, user_id, created_date")
     .eq("user_id", user.id)
 
   if (error) {
@@ -30,15 +30,7 @@ export default async function YourSetsPage() {
         <h2 className="font-bold text-2xl mb-4">Your Flashcard Sets</h2>
 
         {flashcardSets && flashcardSets.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {flashcardSets.map((set) => (
-              <div key={set.id} className="flex justify-between items-center">
-                <Link href={`/flashcards/${set.id}/view-set`} className="text-blue-500 hover:underline">
-                  {set.title}
-                </Link>
-              </div>
-            ))}
-          </div>
+          <SortingDropdown flashcardSets={flashcardSets} />
         ) : (
           <p>You haven't created any flashcard sets yet. Create one to get started.</p>
         )}
