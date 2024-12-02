@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import SortingDropdown from "@/components/sorting-dropdown"; // Import the SortingDropdown component
 
 export default async function FavoritesPage() {
   const supabase = await createClient();
@@ -40,17 +41,9 @@ export default async function FavoritesPage() {
         <h2 className="font-bold text-2xl mb-4">Your Favorite Flashcard Sets</h2>
 
         {favoriteSetDetails && favoriteSetDetails.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            {favoriteSetDetails.map((set) => (
-              <div key={set.id} className="flex justify-between items-center">
-                <Link
-                  href={`/flashcards/${set.id}/view-set`}
-                  className="text-blue-500 hover:underline"
-                >
-                  {set.title} <span className="text-gray-500">(Favorited)</span>
-                </Link>
-              </div>
-            ))}
+          <div className="w-full flex flex-col gap-4">
+            {/* Pass favoriteSetDetails to the SortingDropdown component */}
+            <SortingDropdown flashcardSets={favoriteSetDetails} />
           </div>
         ) : (
           <p>You haven't favorited any flashcard sets yet. Explore and discover more!</p>
