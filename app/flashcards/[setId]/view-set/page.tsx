@@ -138,6 +138,12 @@ export default function ViewSetPage() {
             >
               Study
             </button>
+            <button
+              onClick={() => router.push(`/flashcards/${flashcardSet.id}/match`)}
+              className="mr-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-yellow-600"
+            >
+              Match
+            </button>
 
             {/* Add/Remove to Favorites Icon without button or box */}
             <div
