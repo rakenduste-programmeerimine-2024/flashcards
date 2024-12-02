@@ -10,7 +10,7 @@ export default async function HomePage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    return redirect("/sign-in");
+    return redirect("http://localhost:3000/");
   }
 
   // Fetch both the user's flashcard sets and public flashcard sets
