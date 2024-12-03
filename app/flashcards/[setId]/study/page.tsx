@@ -82,6 +82,50 @@ export default function StudyPage() {
     }
   };
 
+  const saveProgressToDatabase = async () => {
+    try {
+      const { data: userData, error: authError } = await supabase.auth.getUser();
+  
+      if (authError || !userData || !userData.user) {
+        console.error('Authentication error:', authError?.message);
+        alert('You must be logged in to save progress.');
+        return;
+      }
+  
+      const userId = userData.user.id;
+  
+      // Insert progress into the database
+      const { error: insertError } = await supabase.from('progress').insert({
+        flashcard_set_id: parseInt(setId, 10), // Ensure this is a number
+        user_id: userId,
+        cards_studied: knownCards + studyAgainCards,
+        cards_correct: knownCards,
+        last_studied: new Date().toISOString(),
+        completion_percentage: parseFloat(
+          (((knownCards + studyAgainCards) / cards.length) * 100).toFixed(2)
+        ),
+      });
+  
+      if (insertError) {
+        console.error('Error inserting progress:', insertError.message);
+        alert('Failed to save progress. Please try again.');
+      } else {
+        console.log('Progress saved successfully.');
+      }
+    } catch (error) {
+      console.error('Unexpected error saving progress:', error);
+    }
+  };
+  
+
+  const completeStudySession = async () => {
+    if (progressTracking) {
+      await saveProgressToDatabase(); // Ensure progress is saved before marking as completed
+    }
+    setStudyCompleted(true); // Now mark the session as completed
+  };
+  
+
   const restartStudy = () => {
     setCurrentCardIndex(0);
     setShowDefinition(false);
@@ -97,6 +141,12 @@ export default function StudyPage() {
   const goToViewSetPage = () => {
     router.push(`/flashcards/${setId}/view-set`);
   };
+
+  useEffect(() => {
+    if (studyCompleted && progressTracking) {
+      completeStudySession();
+    }
+  }, [studyCompleted, progressTracking]);
 
   return (
     <div>
