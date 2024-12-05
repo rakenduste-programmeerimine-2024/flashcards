@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '../../../../utils/supabase/client';
-import { FaStar, FaRegStar } from 'react-icons/fa'; // Import react-icons
+import { FaStar, FaRegStar, FaPen } from 'react-icons/fa';
 
 const supabase = createClient();
 
@@ -31,50 +31,48 @@ export default function ViewSetPage() {
   const [lastStudied, setLastStudied] = useState<string | null>(null);
   const [completionPercentage, setCompletionPercentage] = useState<number | null>(null);
   const [cardsStudied, setCardsStudied] = useState<number | null>(null);
-  const [cardsCorrect, setCardsCorrect] = useState<number | null>(null);  const [loading, setLoading] = useState(false); // New loading state
-  const [addedToFavorites, setAddedToFavorites] = useState(false); // To track if added to favorites
+  const [cardsCorrect, setCardsCorrect] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false); 
+  const [addedToFavorites, setAddedToFavorites] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false); 
 
   useEffect(() => {
     const fetchSetAndCards = async () => {
-      // Get logged-in user's ID
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData?.user) {
-        return; // Skip if the user is not logged in
+        return; 
       }
       setUserId(userData.user.id);
 
-      // Fetch flashcard set details
       const { data: set, error: setError } = await supabase
         .from('flashcard_set')
-        .select('id, title, description, user_id') // Include user_id in the select
+        .select('id, title, description, user_id') 
         .eq('id', setId)
         .single();
 
       if (setError) {
-        return; // Skip if an error occurs when fetching the set
+        return; 
       }
       setFlashcardSet(set);
 
-      // Fetch cards
       const { data: cardsData, error: cardsError } = await supabase
         .from('card')
         .select('*')
         .eq('flashcard_set_id', setId);
 
       if (cardsError) {
-        return; // Skip if an error occurs when fetching the cards
+        return;
       } else {
         setCards(cardsData || []);
       }
 
-      // Fetch progress
       const { data: progressData, error: progressError } = await supabase
         .from('progress')
         .select('last_studied, completion_percentage, cards_studied, cards_correct')
         .eq('user_id', userData.user.id)
         .eq('flashcard_set_id', setId)
-        .order('last_studied', { ascending: false }) // Sort by the latest `last_studied`
-        .limit(1) // Fetch the most recent row
+        .order('last_studied', { ascending: false })
+        .limit(1)
         .single();
 
       if (!progressError && progressData) {
@@ -84,7 +82,6 @@ export default function ViewSetPage() {
         setCardsCorrect(progressData.cards_correct);
       }
 
-      // Check if this set is already favorited
       const { data: favoriteData, error: favoriteError } = await supabase
         .from('favorites')
         .select('*')
@@ -93,12 +90,11 @@ export default function ViewSetPage() {
         .single();
 
       if (favoriteError && favoriteError.code !== 'PGRST116') {
-        return; // Skip if an error occurs while checking favorites
+        return;
       }
 
-      // Set the favorite status based on the query result
       if (favoriteData) {
-        setAddedToFavorites(true); // This set is favorited
+        setAddedToFavorites(true);
       }
     };
 
@@ -108,9 +104,8 @@ export default function ViewSetPage() {
   const handleAddRemoveFromFavorites = async () => {
     if (!userId || !flashcardSet) return;
 
-    setLoading(true); // Set loading to true when the request is being processed
+    setLoading(true); 
 
-    // If already in favorites, remove it
     if (addedToFavorites) {
       const { error } = await supabase
         .from('favorites')
@@ -119,86 +114,102 @@ export default function ViewSetPage() {
         .eq('flashcard_set_id', flashcardSet.id);
 
       if (!error) {
-        setAddedToFavorites(false); // Update state to reflect the removal
+        setAddedToFavorites(false);
       }
     } else {
-      // If not in favorites, add it
       const { error } = await supabase
         .from('favorites')
         .insert({ user_id: userId, flashcard_set_id: flashcardSet.id });
 
       if (!error) {
-        setAddedToFavorites(true); // Update state to reflect the addition
+        setAddedToFavorites(true); 
       }
     }
 
-    setLoading(false); // Reset loading state
+    setLoading(false); 
   };
 
   return (
     <div className="container mx-auto p-4">
       {flashcardSet && (
         <div>
-          <h1 className="text-2xl font-bold mb-4">{flashcardSet.title}</h1>
-          <h2 className="text-lg text-gray-700 mb-6">{flashcardSet.description}</h2>
-          {/* Display progress values */}
-          <p className="text-sm text-gray-600 mb-2">
-            Last Studied: {lastStudied ? new Date(lastStudied).toLocaleString() : 'N/A'}
-          </p>
-          <p className="text-sm text-gray-600 mb-2">
-            Completion Percentage: {completionPercentage !== null ? `${completionPercentage}%` : 'N/A'}
-          </p>
-          <p className="text-sm text-gray-600 mb-2">
-            Cards Studied: {cardsStudied !== null ? cardsStudied : 'N/A'}
-          </p>
-          <p className="text-sm text-gray-600 mb-6">
-            Cards Correct: {cardsCorrect !== null ? cardsCorrect : 'N/A'}
-          </p>
+          <div className="flex justify-between items-center mb-6">
+            <h1 className="text-[2.5em] font-bold mr-8">{flashcardSet.title}</h1>
+            <div className="flex space-x-1">
+          <div
+            onClick={handleAddRemoveFromFavorites}
+            className={`cursor-pointer ${addedToFavorites ? 'text-yellow-500' : 'text-yellow-500'} text-3xl`}
+          >
+            {addedToFavorites ? <FaStar /> : <FaRegStar />}
+          </div>
+              {userId === flashcardSet.user_id && (
+                <button
+                  onClick={() => router.push(`/flashcards/${flashcardSet.id}/edit-set`)}
+                  className="p-2 bg-transparent text-pink-500 rounded hover:bg-[#D4ABEF] focus:outline-none flex items-center"
+                >
+                  <FaPen className="w-5 h-5" />
+                </button>
+              )}
+            </div>
 
-          {/* Buttons */}
+
+          </div>
+          <h2 className="text-lg text-gray-700 mb-6">{flashcardSet.description}</h2>
+
+          <div
+            onClick={() => setStatsOpen(!statsOpen)}
+            className="cursor-pointer text-pink-500 hover:text-pink-800 text-sm mb-4"
+          >
+            {statsOpen ? 'Hide Stats' : 'Show Stats'}
+          </div>
+
+          {statsOpen && (
+            <div className="p-4 bg-[#F9C5D1] rounded-md shadow-md mb-6">
+              <p className="text-sm text-gray-600 mb-2">
+              <span className="font-bold">Last Studied:</span> {lastStudied ? new Date(lastStudied).toLocaleString() : 'N/A'}
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+              <span className="font-bold">Completion Percentage:</span> {completionPercentage !== null ? `${completionPercentage}%` : 'N/A'}
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+              <span className="font-bold">Cards Studied:</span> {cardsStudied !== null ? cardsStudied : 'N/A'}
+              </p>
+              <p className="text-sm text-gray-600 mb-2">
+              <span className="font-bold">Cards Correct:</span> {cardsCorrect !== null ? cardsCorrect : 'N/A'}
+              </p>
+            </div>
+          )}
+
           <div className="mb-6">
-            {userId === flashcardSet.user_id && (
-              <button
-                onClick={() => router.push(`/flashcards/${flashcardSet.id}/edit-set`)}
-                className="mr-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Edit
-              </button>
-            )}
             <button
               onClick={() => router.push(`/flashcards/${flashcardSet.id}/study`)}
-              className="mr-4 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+              className="mr-4 px-8 py-4 bg-[#EB6090] text-white rounded hover:bg-[#D13C77] text-xl" // Changed hover color here
             >
               Study
             </button>
             <button
               onClick={() => router.push(`/flashcards/${flashcardSet.id}/match`)}
-              className="mr-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+              className="mr-4 px-8 py-4 bg-[#BDB2FF] text-white rounded hover:bg-[#9A90FF] text-xl" // Changed hover color here
             >
               Match
             </button>
-
-            {/* Add/Remove to Favorites Icon without button or box */}
-            <div
-              onClick={handleAddRemoveFromFavorites}
-              className={`cursor-pointer ${addedToFavorites ? 'text-yellow-500' : 'text-yellow-500'} text-3xl`}
-            >
-              {addedToFavorites ? <FaStar /> : <FaRegStar />} {/* Only the star icon */}
-            </div>
           </div>
 
-          {/* Cards */}
+
           <div className="space-y-4">
-            {cards.map((card) => (
-              <div
-                key={card.id}
-                className="flex justify-between items-center border p-4 rounded shadow-sm bg-white"
-              >
-                <span className="font-semibold text-gray-900">{card.term}</span>
-                <span className="text-gray-600">{card.definition}</span>
-              </div>
-            ))}
-          </div>
+  {cards.map((card) => (
+    <div
+      key={card.id}
+      className="p-4 border rounded shadow-md flex justify-between items-center bg-white transition-all duration-300 ease-in-out hover:bg-[#F3D9E0] hover:shadow-lg"
+    >
+      <h2 className="text-xl font-semibold text-gray-800 mr-4">{card.term}</h2> {/* Margin-right added here */}
+      <p className="text-sm text-gray-700">{card.definition}</p>
+    </div>
+  ))}
+</div>
+
+
+
         </div>
       )}
     </div>
