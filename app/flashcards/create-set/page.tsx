@@ -3,6 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { createClient } from '../../../utils/supabase/client';
+import FlashcardForm from '../../../components/create';
+import { Button } from "../../../components/ui/button";
+
 
 const supabase = createClient();
 
@@ -15,7 +18,7 @@ type FlashcardSet = {
 type Flashcard = {
   term: string;
   definition: string;
-  flashcard_set_id: number;  // Update to match your `flashcard_set` table structure
+  flashcard_set_id: number;
 };
 
 export default function CreateSetPage() {
@@ -36,7 +39,7 @@ export default function CreateSetPage() {
       if (userError) {
         setError(userError.message);
       } else if (data?.user) {
-        setUserId(data.user.id);  // Store the user's ID
+        setUserId(data.user.id);
       } else {
         setError('You must be logged in to create a flashcard set.');
       }
@@ -123,56 +126,24 @@ export default function CreateSetPage() {
 
   return (
     <div>
-      <h1>Create Flashcard Set</h1>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
       <form onSubmit={handleCreateSet}>
-        <div>
-          <input
-            type="text"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-        <div>
-          <textarea
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          ></textarea>
-        </div>
-
-        {/* Cards input */}
-        {cards.map((card, index) => (
-          <div key={index} style={{ marginBottom: '10px' }}>
-            <input
-              type="text"
-              placeholder="Term"
-              value={card.term}
-              onChange={(e) => handleCardChange(index, 'term', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Definition"
-              value={card.definition}
-              onChange={(e) => handleCardChange(index, 'definition', e.target.value)}
-            />
-            {/* Delete button */}
-            <button type="button" onClick={() => handleDeleteCard(index)}>Delete Card</button>
-          </div>
-        ))}
-        <label>
-            <input
-                type="checkbox"
-                checked={isPublic}
-                onChange={(e) => setIsPublic(e.target.checked)}
-                />
-                Make this flashcard set public
-        </label>
-
-        <button type="button" onClick={handleAddCard}>Add Card</button>
-        <button type="submit">Create Set</button>
+        <FlashcardForm
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          cards={cards}
+          onCardChange={handleCardChange}
+          onAddCard={handleAddCard}
+          onDeleteCard={handleDeleteCard}
+          isPublic={isPublic}
+          setIsPublic={setIsPublic}
+        />
+        <Button type="submit" variant="default" size="default">
+          Create Set
+        </Button>
       </form>
     </div>
   );
