@@ -28,7 +28,10 @@ export default function ViewSetPage() {
   const [flashcardSet, setFlashcardSet] = useState<FlashcardSet | null>(null);
   const [cards, setCards] = useState<Card[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false); // New loading state
+  const [lastStudied, setLastStudied] = useState<string | null>(null);
+  const [completionPercentage, setCompletionPercentage] = useState<number | null>(null);
+  const [cardsStudied, setCardsStudied] = useState<number | null>(null);
+  const [cardsCorrect, setCardsCorrect] = useState<number | null>(null);  const [loading, setLoading] = useState(false); // New loading state
   const [addedToFavorites, setAddedToFavorites] = useState(false); // To track if added to favorites
 
   useEffect(() => {
@@ -62,6 +65,23 @@ export default function ViewSetPage() {
         return; // Skip if an error occurs when fetching the cards
       } else {
         setCards(cardsData || []);
+      }
+
+      // Fetch progress
+      const { data: progressData, error: progressError } = await supabase
+        .from('progress')
+        .select('last_studied, completion_percentage, cards_studied, cards_correct')
+        .eq('user_id', userData.user.id)
+        .eq('flashcard_set_id', setId)
+        .order('last_studied', { ascending: false }) // Sort by the latest `last_studied`
+        .limit(1) // Fetch the most recent row
+        .single();
+
+      if (!progressError && progressData) {
+        setLastStudied(progressData.last_studied);
+        setCompletionPercentage(progressData.completion_percentage);
+        setCardsStudied(progressData.cards_studied);
+        setCardsCorrect(progressData.cards_correct);
       }
 
       // Check if this set is already favorited
@@ -121,6 +141,19 @@ export default function ViewSetPage() {
         <div>
           <h1 className="text-2xl font-bold mb-4">{flashcardSet.title}</h1>
           <h2 className="text-lg text-gray-700 mb-6">{flashcardSet.description}</h2>
+          {/* Display progress values */}
+          <p className="text-sm text-gray-600 mb-2">
+            Last Studied: {lastStudied ? new Date(lastStudied).toLocaleString() : 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600 mb-2">
+            Completion Percentage: {completionPercentage !== null ? `${completionPercentage}%` : 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600 mb-2">
+            Cards Studied: {cardsStudied !== null ? cardsStudied : 'N/A'}
+          </p>
+          <p className="text-sm text-gray-600 mb-6">
+            Cards Correct: {cardsCorrect !== null ? cardsCorrect : 'N/A'}
+          </p>
 
           {/* Buttons */}
           <div className="mb-6">
