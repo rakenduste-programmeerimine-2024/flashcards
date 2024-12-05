@@ -13,11 +13,17 @@ type Card = {
   flashcard_set_id: string;
 };
 
+type FlashcardSet = {
+  id: string;
+  title: string;
+};
+
 export default function StudyPage() {
   const params = useParams();
   const router = useRouter();
   const setId = params.setId as string;
   const [cards, setCards] = useState<Card[]>([]);
+  const [flashcardSet, setFlashcardSet] = useState<FlashcardSet | null>(null);
   const [currentCardIndex, setCurrentCardIndex] = useState(0);
   const [showDefinition, setShowDefinition] = useState(false);
   const [studyCompleted, setStudyCompleted] = useState(false);
@@ -27,6 +33,20 @@ export default function StudyPage() {
   const [studyAgainCards, setStudyAgainCards] = useState(0);
 
   useEffect(() => {
+    const fetchFlashcardSet = async () => {
+      const { data: flashcardSetData, error } = await supabase
+        .from('flashcard_set')
+        .select('id, title')
+        .eq('id', setId)
+        .single();
+
+      if (error) {
+        console.error('Error fetching flashcard set:', error.message);
+        return;
+      }
+      setFlashcardSet(flashcardSetData || null);
+    };
+
     const fetchCards = async () => {
       // Fetch cards for the study set
       const { data: cardsData, error } = await supabase
@@ -41,7 +61,10 @@ export default function StudyPage() {
       setCards(cardsData || []);
     };
 
-    if (setId) fetchCards();
+    if (setId) {
+      fetchFlashcardSet();
+      fetchCards();
+    }
   }, [setId]);
 
   const flipCard = () => setShowDefinition(!showDefinition);
@@ -152,10 +175,10 @@ export default function StudyPage() {
     <div>
       {studyCompleted ? (
         <div className="text-center p-4">
-          <h2 className="text-xl font-bold">Congratulations!</h2>
-          <p>You have finished studying all the cards in this set.</p>
+          <h2 className="text-xl font-bold mb-4">Congratulations!</h2>
+          <p className="mb-4">You have finished studying all the cards in this set.</p>
           {progressTracking && (
-            <div>
+            <div className="mb-4">
               <p className="mt-2">
                 <strong>Known Cards:</strong> {knownCards}
               </p>
@@ -164,23 +187,33 @@ export default function StudyPage() {
               </p>
             </div>
           )}
-          <div className="mt-4 flex justify-center gap-4">
+          <div className="mt-6 flex justify-center gap-4">
           <button
-              onClick={goToLastCard}
-              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-            >
-              Go Back
-            </button>
-            <button
-              onClick={restartStudy}
-              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-              Start Over
-            </button>
+            onClick={goToLastCard}
+            className="px-4 py-2 bg-[#EB6090] text-white rounded hover:bg-[#D1486B]"
+          >
+            Go Back
+          </button>
+          <button
+            onClick={restartStudy}
+            className="px-4 py-2 bg-[#390099] text-white rounded hover:bg-[#2F0077]"
+          >
+            Start Over
+          </button>
+          <button
+            onClick={goToViewSetPage} // This function will redirect to the view-set page
+            className="px-4 py-2 bg-[#BDB2FF] text-white rounded hover:bg-[#9E93FF]"
+          >
+            Back to Set
+          </button>
+
           </div>
         </div>
       ) : (
         <div>
+          {flashcardSet && (
+            <h1 className="text-3xl text-center font-bold my-4">{flashcardSet.title}</h1>
+          )}
           {cards.length > 0 && (
             <div>
               {/* Toggle for term/definition first */}
@@ -202,7 +235,7 @@ export default function StudyPage() {
                 </label>
               </div>
               {/* Toggle for progress tracking */}
-              <div className="flex justify-center mb-4">
+              <div className="flex justify-center mb-8">
                 <label className="flex items-center gap-2">
                   <span>Progress Tracking</span>
                   <div
@@ -223,14 +256,27 @@ export default function StudyPage() {
               <div
                 onClick={flipCard}
                 className="card bg-gray-100 border p-4 text-center cursor-pointer"
-                style={{ width: '300px', margin: '0 auto' }}
-              >
+                style={{
+                  width: '800px',
+                  height: '250px',
+                  margin: '0 auto',
+                  padding: '20px',
+                  display: 'flex',
+                  justifyContent: 'center',  
+                  alignItems: 'center',
+                  backgroundColor: 'white',  // Set background to white
+                  boxShadow: '0 4px 12px rgba(255, 105, 180, 0.5)', // Add shadow effect (adjust the values as needed)
+                  borderRadius: '8px',
+                  marginBottom: '40px',      
+                }}
+                >
                 <h2>
                   {showDefinition === showTermFirst
                     ? cards[currentCardIndex].definition
                     : cards[currentCardIndex].term}
                 </h2>
               </div>
+
               <p className="text-center mt-2 text-gray-600">
                 {currentCardIndex + 1} / {cards.length}
               </p>
@@ -249,20 +295,20 @@ export default function StudyPage() {
                       onClick={handleCheck}
                       className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                     >
-                      Check
+                      Know
                     </button>
                   </>
                 ) : (
                   <>
                   <button
                   onClick={prevCard}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-4 py-2 bg-[#EB6090] text-white rounded hover:bg-[#D1486B]"
                   >
                   Prev
                   </button>
                   <button
                   onClick={nextCard}
-                  className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                  className="px-4 py-2 bg-[#EB6090] text-white rounded hover:bg-gray-600"
                   >
                   Next
                   </button>
@@ -272,7 +318,7 @@ export default function StudyPage() {
               <div className="mt-4 flex justify-center">
                   <button
                     onClick={goToViewSetPage}
-                    className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-600"
+                    className="px-4 py-2 bg-[#BDB2FF] text-white rounded hover:bg-[#9E93FF]"
                   >
                     Back to Set
                   </button>
