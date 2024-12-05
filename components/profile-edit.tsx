@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { SubmitButton } from "@/components/submit-button";
 import { useTheme } from "next-themes";
+import { FaPen } from "react-icons/fa";
 
 const supabaseClient = createClient();
 
@@ -127,18 +128,20 @@ export default function ProfileEdit({ email }: { email: string }) {
             />
             <SubmitButton
               onClick={handleSavePasswordClick}
-              className={`hover:underline text-sm`}
+              className="text-white rounded px-3 py-1 hover:opacity-90"
+              style={{ backgroundColor: '#EB6090' }}
             >
               Save password
             </SubmitButton>
           </div>
         ) : (
-          <SubmitButton
+          <button
             onClick={() => setIsEditingPassword(true)}
-            className={`hover:underline text-sm`}
+            className="p-2 bg-transparent text-pink-500 rounded hover:bg-[#D4ABEF] focus:outline-none flex items-center"
           >
-            Change password
-          </SubmitButton>
+            <FaPen className="w-5 h-5" />
+          </button>
+
         )}
       </div>
 

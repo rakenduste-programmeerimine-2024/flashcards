@@ -16,7 +16,7 @@ export default async function HomePage() {
 
   const { data: flashcardSets, error } = await supabase
     .from("flashcard_set")
-    .select("id, title, user_id, is_public")
+    .select("id, title, user_id, is_public, created_date")
     .or(`user_id.eq.${user.id},is_public.eq.true`);
 
   if (error) {
@@ -30,6 +30,9 @@ export default async function HomePage() {
 
   const yourSets = flashcardSets.filter((set) => set.user_id === user.id);
   const publicSets = flashcardSets.filter((set) => set.is_public && set.user_id !== user.id);
+
+  const sortedYourSets = yourSets.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
+  const sortedPublicSets = publicSets.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
 
   const getTermCount = async (setId: number) => {
     const { data, error } = await supabase
@@ -53,7 +56,6 @@ export default async function HomePage() {
     console.error(favoriteError.message);
   }
 
-  // Fetch the flashcard set details for the favorited sets
   const favoriteSetDetails = await Promise.all(
     favoriteSets.map(async (favorite) => {
       const { data: flashcardSet } = await supabase
@@ -65,23 +67,26 @@ export default async function HomePage() {
     })
   );
 
+  const sortedFavoriteSets = favoriteSetDetails.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
+
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
       <div className="flex flex-col gap-2 items-start">
-        <h2 className="font-bold text-2xl mb-4">Welcome to Flashcards!</h2>
+        <h2 className="font-bold text-[2.5em] mb-4">Welcome to Flashcards!</h2>
 
         <Link href="/flashcards/your-sets">
-          <h3 className="text-2xl mb-4 hover:text-pink-500">Your Sets</h3>
+          <h3 className="text-2xl mb-4 hover:text-pink-500">See your Sets</h3>
         </Link>
-        {yourSets.length > 0 ? (
+        {sortedYourSets.length > 0 ? (
           <div className="flex flex-wrap gap-4">
-            {yourSets.map(async (set) => (
+            {sortedYourSets.slice(0, 3).map(async (set) => (
               <Card
                 key={set.id}
                 title={set.title}
                 id={set.id}
                 termCount={await getTermCount(set.id)} 
                 link={`/flashcards/${set.id}/view-set`}
+                isPublic={set.is_public} 
               />
             ))}
           </div>
@@ -90,17 +95,18 @@ export default async function HomePage() {
         )}
 
         <Link href="/flashcards/discover">
-          <h3 className="text-2xl mb-4 hover:text-pink-500">Discover</h3>
+          <h3 className="text-2xl mb-2 mt-8 hover:text-pink-500">Click to discover</h3>
         </Link>
-        {publicSets.length > 0 ? (
+        {sortedPublicSets.length > 0 ? (
           <div className="flex flex-wrap gap-4">
-            {publicSets.map(async (set) => (
+            {sortedPublicSets.slice(0, 3).map(async (set) => (
               <Card
                 key={set.id}
                 title={set.title}
                 id={set.id}
-                termCount={await getTermCount(set.id)} // Fetch term count
+                termCount={await getTermCount(set.id)} 
                 link={`/flashcards/${set.id}/view-set`}
+                isPublic={set.is_public}
               />
             ))}
           </div>
@@ -109,17 +115,18 @@ export default async function HomePage() {
         )}
 
         <Link href="/flashcards/favorites">
-          <h3 className="text-2xl mb-4 hover:text-pink-500">Favorites</h3>
+          <h3 className="text-2xl mb-2 mt-8 hover:text-pink-500">See your favorites</h3>
         </Link>
-        {favoriteSetDetails.length > 0 ? (
+        {sortedFavoriteSets.length > 0 ? (
           <div className="flex flex-wrap gap-4">
-            {favoriteSetDetails.map(async (set) => (
+            {sortedFavoriteSets.slice(0, 3).map(async (set) => (
               <Card
                 key={set.id}
                 title={set.title}
                 id={set.id}
                 termCount={await getTermCount(set.id)} 
                 link={`/flashcards/${set.id}/view-set`}
+                isPublic={set.is_public} 
               />
             ))}
           </div>
@@ -128,7 +135,7 @@ export default async function HomePage() {
         )}
 
         <Link href="/flashcards/create-set">
-          <button className="mt-4 px-4 py-2 bg-[#BDB2FF] text-white rounded hover:bg-[#BDB2FF] hover:opacity-80">
+          <button className="mt-8 px-4 py-2 bg-[#BDB2FF] text-white rounded hover:bg-[#BDB2FF] hover:opacity-80">
             Create a New Flashcard Set
           </button>
         </Link>
