@@ -10,7 +10,7 @@ export default async function Index() {
     data: { user },
   } = await (await supabase).auth.getUser();
 
-  const redirectTo = user ? "/flashcards/create-set" : "/sign-up";
+  const redirectTo = user ? "/homepage" : "/sign-up";
 
   return (
     <main className="flex-1 flex flex-col gap-6 px-4 justify-center items-center">

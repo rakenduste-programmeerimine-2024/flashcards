@@ -166,16 +166,16 @@ export default function ViewSetPage() {
           {statsOpen && (
             <div className="p-4 bg-[#F9C5D1] rounded-md shadow-md mb-6">
               <p className="text-sm text-gray-600 mb-2">
-              <span className="font-bold">Last Studied:</span> {lastStudied ? new Date(lastStudied).toLocaleString() : 'N/A'}
+              <span className="font-bold">Last Studied:</span> {lastStudied ? new Date(lastStudied).toLocaleString() : "You haven't studied yet"}
               </p>
               <p className="text-sm text-gray-600 mb-2">
-              <span className="font-bold">Completion Percentage:</span> {completionPercentage !== null ? `${completionPercentage}%` : 'N/A'}
+              <span className="font-bold">Completion Percentage:</span> {completionPercentage !== null ? `${completionPercentage}%` : "You haven't studied yet"}
               </p>
               <p className="text-sm text-gray-600 mb-2">
-              <span className="font-bold">Cards Studied:</span> {cardsStudied !== null ? cardsStudied : 'N/A'}
+              <span className="font-bold">Cards Studied:</span> {cardsStudied !== null ? cardsStudied : "You haven't studied yet"}
               </p>
               <p className="text-sm text-gray-600 mb-2">
-              <span className="font-bold">Cards Correct:</span> {cardsCorrect !== null ? cardsCorrect : 'N/A'}
+              <span className="font-bold">Cards Correct:</span> {cardsCorrect !== null ? cardsCorrect : "You haven't studied yet"}
               </p>
             </div>
           )}
@@ -183,13 +183,13 @@ export default function ViewSetPage() {
           <div className="mb-6">
             <button
               onClick={() => router.push(`/flashcards/${flashcardSet.id}/study`)}
-              className="mr-4 px-8 py-4 bg-[#EB6090] text-white rounded hover:bg-[#D13C77] text-xl" // Changed hover color here
+              className="mr-4 px-8 py-4 bg-[#EB6090] text-white rounded hover:bg-[#D13C77] text-xl" 
             >
               Study
             </button>
             <button
               onClick={() => router.push(`/flashcards/${flashcardSet.id}/match`)}
-              className="mr-4 px-8 py-4 bg-[#BDB2FF] text-white rounded hover:bg-[#9A90FF] text-xl" // Changed hover color here
+              className="mr-4 px-8 py-4 bg-[#BDB2FF] text-white rounded hover:bg-[#9A90FF] text-xl"
             >
               Match
             </button>
@@ -202,7 +202,7 @@ export default function ViewSetPage() {
       key={card.id}
       className="p-4 border rounded shadow-md flex justify-between items-center bg-white transition-all duration-300 ease-in-out hover:bg-[#F3D9E0] hover:shadow-lg"
     >
-      <h2 className="text-xl font-semibold text-gray-800 mr-4">{card.term}</h2> {/* Margin-right added here */}
+      <h2 className="text-xl font-semibold text-gray-800 mr-4">{card.term}</h2> 
       <p className="text-sm text-gray-700">{card.definition}</p>
     </div>
   ))}

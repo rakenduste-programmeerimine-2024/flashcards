@@ -71,17 +71,17 @@ export default function StudyPage() {
 
   const nextCard = () => {
     if (currentCardIndex + 1 >= cards.length) {
-        // All cards have been viewed
+
         setStudyCompleted(true);
       } else {
         setCurrentCardIndex((prevIndex) => prevIndex + 1);
-        setShowDefinition(false); // Reset flip state
+        setShowDefinition(false);
       }
   };
 
   const prevCard = () => {
     setCurrentCardIndex((prevIndex) => (prevIndex - 1 + cards.length) % cards.length);
-    setShowDefinition(false); // Reset flip state
+    setShowDefinition(false); 
   };
 
   const handleCheck = () => {
@@ -89,19 +89,17 @@ export default function StudyPage() {
     moveToNextCard();
   };
 
-  // Handle progress tracking mode: study again the card
   const handleStudyAgain = () => {
     setStudyAgainCards((prev) => prev + 1);
     moveToNextCard();
   };
 
-  // Move to the next card
   const moveToNextCard = () => {
     if (currentCardIndex + 1 >= cards.length) {
       setStudyCompleted(true);
     } else {
       setCurrentCardIndex((prevIndex) => prevIndex + 1);
-      setShowDefinition(false); // Reset flip state
+      setShowDefinition(false);
     }
   };
 
@@ -117,9 +115,8 @@ export default function StudyPage() {
   
       const userId = userData.user.id;
   
-      // Insert progress into the database
       const { error: insertError } = await supabase.from('progress').insert({
-        flashcard_set_id: parseInt(setId, 10), // Ensure this is a number
+        flashcard_set_id: parseInt(setId, 10), 
         user_id: userId,
         cards_studied: knownCards + studyAgainCards,
         cards_correct: knownCards,
@@ -143,9 +140,9 @@ export default function StudyPage() {
 
   const completeStudySession = async () => {
     if (progressTracking) {
-      await saveProgressToDatabase(); // Ensure progress is saved before marking as completed
+      await saveProgressToDatabase();
     }
-    setStudyCompleted(true); // Now mark the session as completed
+    setStudyCompleted(true);
   };
   
 
@@ -201,7 +198,7 @@ export default function StudyPage() {
             Start Over
           </button>
           <button
-            onClick={goToViewSetPage} // This function will redirect to the view-set page
+            onClick={goToViewSetPage} 
             className="px-4 py-2 bg-[#BDB2FF] text-white rounded hover:bg-[#9E93FF]"
           >
             Back to Set
@@ -216,14 +213,14 @@ export default function StudyPage() {
           )}
           {cards.length > 0 && (
             <div>
-              {/* Toggle for term/definition first */}
+
               <div className="flex justify-center mb-4">
                 <label className="flex items-center gap-2">
                   <span>Show Term First</span>
                   <div
                     onClick={() => setShowTermFirst(!showTermFirst)}
                     className={`relative inline-block w-10 h-6 cursor-pointer ${
-                      showTermFirst ? 'bg-blue-500' : 'bg-gray-300'
+                      showTermFirst ? 'bg-pink-300' : 'bg-purple-300'
                     } rounded-full`}
                   >
                     <span
@@ -234,14 +231,14 @@ export default function StudyPage() {
                   </div>
                 </label>
               </div>
-              {/* Toggle for progress tracking */}
+
               <div className="flex justify-center mb-8">
                 <label className="flex items-center gap-2">
                   <span>Progress Tracking</span>
                   <div
                     onClick={() => setProgressTracking(!progressTracking)}
                     className={`relative inline-block w-10 h-6 cursor-pointer ${
-                      progressTracking ? 'bg-green-500' : 'bg-gray-300'
+                      progressTracking ? 'bg-pink-300' : 'bg-purple-300'
                     } rounded-full`}
                   >
                     <span
@@ -264,8 +261,8 @@ export default function StudyPage() {
                   display: 'flex',
                   justifyContent: 'center',  
                   alignItems: 'center',
-                  backgroundColor: 'white',  // Set background to white
-                  boxShadow: '0 4px 12px rgba(255, 105, 180, 0.5)', // Add shadow effect (adjust the values as needed)
+                  backgroundColor: 'white', 
+                  boxShadow: '0 4px 12px rgba(255, 105, 180, 0.5)',
                   borderRadius: '8px',
                   marginBottom: '40px',      
                 }}
@@ -281,7 +278,6 @@ export default function StudyPage() {
                 {currentCardIndex + 1} / {cards.length}
               </p>
 
-              {/* Navigation buttons */}
               <div className="mt-4 flex justify-between">
               {progressTracking ? (
                   <>

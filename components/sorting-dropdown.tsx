@@ -16,7 +16,11 @@ type FlashcardSet = {
 }
 
 export default function SortingDropdown({ flashcardSets }: { flashcardSets: FlashcardSet[] }) {
-  const [sortedSets, setSortedSets] = useState(flashcardSets)
+  const [sortedSets, setSortedSets] = useState(
+    [...flashcardSets].sort(
+      (a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
+    )
+  )
   const [sortOption, setSortOption] = useState<"Newest First" | "Oldest First" | "Alphabetical">("Newest First")
 
   const handleSort = (option: "Newest First" | "Oldest First" | "Alphabetical") => {
