@@ -1,45 +1,114 @@
-Projekti nimi - Mõistekaartide rakendus
+# Projekt: Mõistekaartide Rakendus
 
-Projekti kirjeldus:
+## Projekti Kirjeldus
 Veebirakendus, mis võimaldab kasutajatel luua ja kasutada mõistekaarte õppimiseks. Kasutajad saavad lisada küsimusi ja vastuseid, luua eraldi teemapõhiseid kaarte ning jälgida oma edusamme.
 
 Autorid:
 Karmen Klaasen
 Kryslin Rass
 
-FUNKTSIONAALSUSTE NIMEKIRI:
+---
 
-1. kasutaja saab konto luua
-   e-maili sisestamine
-   parooli sisestamine
-   kasutajanime sisestamine
-2. kasutaja saab sisse logida
-   kasutajanime sisestamine
-   parooli sisestamine
-3. kasutaja saab arv lehe vahel liikuda
-4. kasutaja saab luua mõistekaartide komplekte
-   kasutaja saab panna komplektile nime
-   kasutaja saab sisestada mõisteid ja definitsioone
-   kasutaja saab insertida pilte definitsioonide juurde
-   kasutaja saab määrata oma komplektide privaatsust (avalik / privaatne)
-5. kasutaja saab kustutada oma loodud mõistekaartide komplekte
-6. kasutaja saab teha muudatusi loodud mõistekaartide komplektides
-7. kasutaja saab õppida kasutades loodud mõistekaartide komplekte
-   kasutaja saab ühte mõistekaarti edasi-tagasi ümber pöörata
-   kasutaja saab liikuda edasi järgmise mõiste juurde ja ka tagasi
-   kasutaja saab märkida, kas mõiste on selge või segane (see muudab õppimise/läbimise protsenti)
-   kasutaja saab valida, kas enne näha mõistet või definitsiooni
-   kasutaja näeb, mitu kaarti on veel läbimata või läbitud
-8. kasutaja saab matchida loodud mõistekaartide komplekte (on mitu mõistet ja definitsiooni ja ta peab samad sobitama)
-9. kasutaja saab vaadata teiste kasutajate loodud komplekte
-10. kasutaja saab filtreerida/sorteerida (uus-vana, tähestik)
-11. kasutaja näeb oma edusamme
-12. kasutaja saab lisada teiste kasutajate loodud komplekte lemmikuteks ning neid eraldi alalehel näha
-13. alaleht kasutaja komplektidest
-14. alaleht kasutaja profiilist
-15. pealehel avaldatud komplektid, mis on avalikud (uuemad ees)
-16. kasutaja saab muuta oma profiili andmeid
-    emaili muutmine
-    kasutajanime muutmine
-    parooli muutmine
-17. kasutaja saab välja logida
+## Funktsionaalsuste Nimekiri
+
+1. **Kasutaja konto loomine:**
+   - E-maili sisestamine
+   - Parooli sisestamine
+   - Kasutajanime sisestamine
+
+2. **Kasutaja sisselogimine:**
+   - Kasutajanime sisestamine
+   - Parooli sisestamine
+
+3. **Lehtede vahetamine:**
+   - Kasutaja saab liikuda lehtede vahel.
+
+4. **Mõistekaartide komplektide loomine:**
+   - Kasutaja saab panna komplektile nime.
+   - Kasutaja saab sisestada mõisted ja definitsioonid.
+   - Kasutaja saab lisada pilte definitsioonide juurde.
+   - Kasutaja saab määrata komplekti privaatsuse (avalik/privaatne).
+
+5. **Mõistekaartide komplektide kustutamine:**
+   - Kasutaja saab oma loodud mõistekaartide komplekte kustutada.
+
+6. **Mõistekaartide komplektide muutmine:**
+   - Kasutaja saab oma loodud mõistekaartide komplekte muuta.
+
+7. **Õppimine loodud mõistekaartidega:**
+   - Kasutaja saab mõistekaarte edasi-tagasi ümber pöörata.
+   - Kasutaja saab liikuda järgmisele mõistele ja tagasi.
+   - Kasutaja saab märkida, kas mõiste on selge või segane (mõjutab õppimise protsenti).
+   - Kasutaja saab valida, kas näha mõistet või definitsiooni.
+   - Kasutaja näeb, kui palju kaarte on veel läbimata või läbitud.
+
+8. **Mõistekaartide matchimine:**
+   - Kasutaja saab sobitada mõisted ja definitsioonid.
+
+9. **Teiste kasutajate loodud komplektide vaatamine:**
+   - Kasutaja saab vaadata teiste kasutajate loodud komplekte.
+
+10. **Filtreerimine ja sorteerimine:**
+   - Kasutaja saab komplekte sorteerida (uus-vana, tähestik).
+
+11. **Edusammude jälgimine:**
+   - Kasutaja saab näha oma edusamme.
+
+12. **Lemmikute lisamine:**
+   - Kasutaja saab teiste kasutajate loodud komplekte lemmikuteks lisada ja neid eraldi alalehelt vaadata.
+
+13. **Kasutaja komplektide leht:**
+   - Alaleht, kus kuvatakse kasutaja loodud komplekte.
+
+14. **Kasutaja profiili leht:**
+   - Alaleht, kus kuvatakse kasutaja profiili andmed.
+
+15. **Avalikud komplektid:**
+   - Pealeht, kus kuvatakse avalikud komplektid (uuemad ees).
+
+16. **Profiili muutmine:**
+   - Kasutaja saab muuta oma profiili andmeid (e-mail, kasutajanimi, parool).
+
+17. **Välja logimine:**
+   - Kasutaja saab välja logida.
+
+---
+
+## Sprintide Ülevaade
+
+### Sprint 1: 04.11 – 10.11
+**Fookus:** Algus, baasmudel, kasutaja haldus  
+- Kasutaja konto loomine ja sisselogimine  
+- Andmebaasi ja Supabase ühendamine  
+- Low-fidelity wireframe koostamine  
+- Koodibaasi alustamine
+
+### Sprint 2: 11.11 – 17.11
+**Fookus:** Kasutajaliidese arendus ja põhifunktsioonid  
+- Mõistekaartide komplektide loomine ja haldamine  
+- Komplektide kuvamine ja muutmine  
+- Andmete salvestamine Supabase’i andmebaasi  
+- Õppimisfunktsioonide arenduse algus
+
+### Sprint 3: 18.11 – 24.11
+**Fookus:** Õppimisfunktsioonide täiustamine ja täiendav funktsionaalsus  
+- Õppimislehe arendus  
+- Matchimise funktsioon  
+- Edukuse jälgimine ja statistika  
+- Filtreerimise ja sorteerimise funktsioonide lisamine
+
+### Sprint 4: 25.11 – 01.12
+**Fookus:** Täiendavad funktsioonid ja profiilihaldus  
+- Kasutaja profiili haldamine  
+- Teiste kasutajate komplektide vaatamine ja lemmikuteks lisamine  
+- Vead ja testimine
+
+### Sprint 5: 02.12 – 08.12
+**Fookus:** Lõppviimistlus, disain ja deploy  
+- Rakenduse välimuse ja kasutajaliidese täiendamine  
+- Lõplik testimine  
+- Deployimine
+
+---
+
+## Low-fidelity wireframe

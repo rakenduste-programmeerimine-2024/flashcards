@@ -55,15 +55,13 @@ const FlashcardForm = ({
       <h3 style={{ marginBottom: '20px', fontSize: '1.7em' }}>Flashcards</h3>
       {cards.map((card, index) => (
         <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
-          <input
-            type="text"
+          <textarea
             placeholder="enter term"
             value={card.term}
             onChange={(e) => onCardChange(index, 'term', e.target.value)}
             style={termAndDefinitionStyle}  
           />
-          <input
-            type="text"
+          <textarea
             placeholder="enter definition"
             value={card.definition}
             onChange={(e) => onCardChange(index, 'definition', e.target.value)}
@@ -114,13 +112,18 @@ const titleAndDescriptionStyle: React.CSSProperties = {
     boxSizing: 'border-box',
   };
   
-const termAndDefinitionStyle: React.CSSProperties = {
-    border: '2px solid #ccc',
+  const termAndDefinitionStyle: React.CSSProperties = {
+    width: '100%',
     padding: '8px',
+    fontSize: '1.2em',
+    minHeight: '40px', 
+    maxHeight: '200px', 
+    resize: 'none', 
+    overflowY: 'auto',  
+    boxSizing: 'border-box', 
+    lineHeight: '1.4', 
+    border: '2px solid #ccc', 
     borderRadius: '4px',
-    width: '400px', 
-    marginRight: '10px', 
-    boxSizing: 'border-box',
   };
 
 const deleteCardButtonStyle: React.CSSProperties = {
@@ -162,3 +165,5 @@ const addCardButtonHoverStyle: React.CSSProperties = {
   };
 
 export default FlashcardForm;
+
+//muudetud
