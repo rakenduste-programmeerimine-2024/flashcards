@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { createClient } from '../../../../utils/supabase/client';
+import FlashcardForm from '../../../../components/flashcard-form';
+
 
 const supabase = createClient();
 
@@ -79,29 +81,69 @@ export default function EditSetPage() {
     if (setId) checkOwnership();
   }, [setId, router]);
 
-  const handleSaveSet = async () => {
-    const { data, error } = await supabase
-      .from('flashcard_set')
-      .update({
-        title: flashcardSet.title,
-        description: flashcardSet.description,
-        is_public: flashcardSet.is_public,
-      })
-      .eq('id', setId);
-
-    if (error) {
-      setError(error.message);
-    } else {
-      setSuccess('Flashcard set updated successfully!');
-    }
-  };
-
-  const handleDeleteCard = async (cardId: string) => {
-    const { error } = await supabase.from('card').delete().eq('id', cardId);
-    if (error) {
-      setError(error.message);
-    } else {
-      setCards(cards.filter((card) => card.id !== cardId));
+  const handleSave = async () => {
+    try {
+      const { error: setError } = await supabase
+        .from('flashcard_set')
+        .update({
+          title: flashcardSet.title,
+          description: flashcardSet.description,
+          is_public: flashcardSet.is_public,
+        })
+        .eq('id', setId);
+  
+      if (setError) {
+        setError(setError.message);
+        return;
+      }
+  
+      const validNewCards = newCards.filter((card) => card.term && card.definition);
+      if (validNewCards.length > 0) {
+        const { error: cardsError } = await supabase.from('card').insert(
+          validNewCards.map((card) => ({
+            term: card.term,
+            definition: card.definition,
+            flashcard_set_id: setId,
+          }))
+        );
+  
+        if (cardsError) {
+          setError(cardsError.message);
+          return;
+        }
+      }
+  
+      for (const card of cards) {
+        const { error: cardUpdateError } = await supabase
+          .from('card')
+          .update({
+            term: card.term,
+            definition: card.definition,
+          })
+          .eq('id', card.id);
+  
+        if (cardUpdateError) {
+          setError(cardUpdateError.message);
+          return;
+        }
+      }
+  
+      const { data: updatedCards, error: fetchError } = await supabase
+        .from('card')
+        .select('*')
+        .eq('flashcard_set_id', setId)
+        .order('created_at', { ascending: true });
+  
+      if (fetchError) {
+        setError(fetchError.message);
+        return;
+      }
+  
+      setCards(updatedCards || []);
+      setNewCards([]); 
+      setSuccess('Flashcard set and cards saved successfully!');
+    } catch (err) {
+      setError('An unexpected error occurred.');
     }
   };
 
@@ -120,22 +162,12 @@ export default function EditSetPage() {
     setNewCards(updatedNewCards);
   };
 
-  const handleSaveNewCards = async () => {
-    const validNewCards = newCards.filter((card) => card.term && card.definition);
-    const { data, error } = await supabase.from('card').insert(
-      validNewCards.map((card) => ({
-        term: card.term,
-        definition: card.definition,
-        flashcard_set_id: setId,
-      }))
-    );
-
+  const handleDeleteCard = async (cardId: string) => {
+    const { error } = await supabase.from('card').delete().eq('id', cardId);
     if (error) {
       setError(error.message);
-    } else if (data) {
-      setCards([...cards, ...data]);
-      setNewCards([]);
-      setSuccess('New cards saved successfully!');
+    } else {
+      setCards(cards.filter((card) => card.id !== cardId));
     }
   };
 
@@ -143,7 +175,6 @@ export default function EditSetPage() {
     const confirmation = window.confirm('Are you sure you want to delete this flashcard set? This action cannot be undone.');
     if (!confirmation) return;
 
-    // Delete the cards related to the flashcard set
     const { error: deleteCardsError } = await supabase
       .from('card')
       .delete()
@@ -154,7 +185,6 @@ export default function EditSetPage() {
       return;
     }
 
-    // Delete the flashcard set itself
     const { error: deleteSetError } = await supabase
       .from('flashcard_set')
       .delete()
@@ -164,7 +194,7 @@ export default function EditSetPage() {
       setError(deleteSetError.message);
     } else {
       setSuccess('Flashcard set deleted successfully!');
-      router.push('/flashcards/your-sets'); // Redirect to 'Your Sets' page after deletion
+      router.push('/flashcards/your-sets'); 
     }
   };
 
@@ -175,73 +205,82 @@ export default function EditSetPage() {
 
   return (
     <div>
-      <h1>Edit Flashcard Set</h1>
-      {success && <p style={{ color: 'green' }}>{success}</p>}
-      
-      {/* Title and Description Fields */}
       <div>
-        <label>Title</label>
-        <input
-          type="text"
-          placeholder="Enter Title"
-          value={flashcardSet.title}
-          onChange={(e) => setFlashcardSet({ ...flashcardSet, title: e.target.value })}
+        <FlashcardForm
+          formTitle="Edit Flashcard Set"
+          title={flashcardSet.title}
+          setTitle={(title) => setFlashcardSet({ ...flashcardSet, title })}
+          description={flashcardSet.description}
+          setDescription={(description) => setFlashcardSet({ ...flashcardSet, description })}
+          cards={cards.concat(newCards)}
+          onCardChange={(index, field, value) => {
+            if (index < cards.length) {
+              const updatedCards = [...cards];
+              updatedCards[index][field] = value;
+              setCards(updatedCards);
+            } else {
+              handleNewCardChange(index - cards.length, field, value);
+            }
+          }}
+          onAddCard={handleAddEmptyCard}
+          onDeleteCard={(index) => {
+            if (index < cards.length) {
+              handleDeleteCard(cards[index].id);
+            } else {
+              handleDeleteNewCard(index - cards.length);
+            }
+          }}
+          isPublic={flashcardSet.is_public}
+          setIsPublic={(isPublic) => setFlashcardSet({ ...flashcardSet, is_public: isPublic })}
         />
-        <label>Description</label>
-        <textarea
-          placeholder="Enter Description"
-          value={flashcardSet.description}
-          onChange={(e) => setFlashcardSet({ ...flashcardSet, description: e.target.value })}
-        />
-        <div>
-          <label>Privacy</label>
-          <input
-            type="checkbox"
-            checked={flashcardSet.is_public}
-            onChange={(e) => setFlashcardSet({ ...flashcardSet, is_public: e.target.checked })}
-          />
-          <span>{flashcardSet.is_public ? 'Public' : 'Private'}</span>
+        <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
+          <button
+            onClick={handleDeleteSet}
+            style={{
+              backgroundColor: 'red',
+              color: 'white',
+              padding: '6px 12px',
+              border: 'none',
+              borderRadius: '4px',
+              cursor: 'pointer',
+              marginTop: '10px',
+              width: 'auto',
+              alignSelf: 'flex-start',
+            }}
+          >
+            Delete Flashcard Set
+          </button>
         </div>
-        <button onClick={handleSaveSet}>Save Set</button>
-        <button onClick={handleDeleteSet} style={{ backgroundColor: 'red', color: 'white', marginTop: '10px' }}>
-          Delete Flashcard Set
-        </button>
       </div>
 
-      <ul>
-        {cards.map((card, index) => (
-          <li key={card.id}>
-            <strong>Card {index + 1}</strong>
-            <p>Term: {card.term}</p>
-            <p>Definition: {card.definition}</p>
-            <button onClick={() => handleDeleteCard(card.id)}>Delete</button>
-          </li>
-        ))}
-      </ul>
+      {success && <p style={{ color: 'green' }}>{success}</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      <div>
-        <h2>Add New Cards</h2>
-        {newCards.map((card, index) => (
-          <div key={index}>
-            <label>Card {index + 1}</label>
-            <input
-              type="text"
-              placeholder="Term"
-              value={card.term}
-              onChange={(e) => handleNewCardChange(index, 'term', e.target.value)}
-            />
-            <input
-              type="text"
-              placeholder="Definition"
-              value={card.definition}
-              onChange={(e) => handleNewCardChange(index, 'definition', e.target.value)}
-            />
-            <button onClick={() => handleDeleteNewCard(index)}>Delete</button>
-          </div>
-        ))}
-        <button onClick={handleAddEmptyCard}>Add Another Card</button>
-        {newCards.length > 0 && <button onClick={handleSaveNewCards}>Save All</button>}
-      </div>
+      <button
+        onClick={handleSave}
+        style={saveButtonStyle}
+      >
+        Save
+      </button>
     </div>
   );
 }
+
+const saveButtonStyle: React.CSSProperties = {
+  fontSize: '1.3em', 
+  padding: '10px 20px', 
+  backgroundColor: '#ff0f7b', 
+  color: '#fff', 
+  border: 'none', 
+  borderRadius: '4px', 
+  cursor: 'pointer', 
+  display: 'block', 
+  width: '100%', 
+  marginTop: '20px', 
+  transition: 'background-color 0.3s ease', 
+};
+
+const saveButtonHoverStyle: React.CSSProperties = {
+  backgroundColor: '#ff2d8f',
+};
+
