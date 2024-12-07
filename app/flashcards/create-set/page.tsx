@@ -3,9 +3,8 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { createClient } from '../../../utils/supabase/client';
-import FlashcardForm from '../../../components/create';
+import FlashcardForm from '../../../components/flashcard-form';
 import { Button } from "../../../components/ui/button";
-
 
 const supabase = createClient();
 
@@ -49,8 +48,8 @@ export default function CreateSetPage() {
   }, []);
 
   const handleCreateSet = async (e: React.FormEvent) => {
-    e.preventDefault(); // Prevent default form submission behavior
-    setError('');  // Reset error and success messages
+    e.preventDefault(); 
+    setError('');  
     setSuccess('');
 
     if (!title) {
@@ -63,7 +62,6 @@ export default function CreateSetPage() {
       return;
     }
 
-    // Insert the flashcard set
     const { data: setData, error: setErrorFromDB } = await supabase
       .from('flashcard_set')
       .insert({
@@ -71,12 +69,12 @@ export default function CreateSetPage() {
         description,
         user_id: userId,
         is_public: isPublic,
-        created_date: new Date().toISOString(), // Ensure a timestamp is passed
+        created_date: new Date().toISOString(), 
       })
-      .select('id'); // Get the flashcard set ID
+      .select('id'); 
 
     if (setErrorFromDB) {
-      setError(setErrorFromDB.message);  // Using the state setter for error handling
+      setError(setErrorFromDB.message);  
       return;
     }
 
@@ -87,24 +85,23 @@ export default function CreateSetPage() {
       return;
     }
 
-    // Insert the cards associated with the new set
     const flashcardsToInsert: Flashcard[] = cards.map((card) => ({
       term: card.term,
       definition: card.definition,
-      flashcard_set_id: flashcardSetId,  // Use the flashcard set ID for the foreign key
+      flashcard_set_id: flashcardSetId,  
     }));
 
     const { error: cardError } = await supabase
-      .from('card')  // Ensure this is the correct table name (`card` not `flashcards`)
+      .from('card') 
       .insert(flashcardsToInsert);
 
     if (cardError) {
-      setError(cardError.message);  // Using the state setter for error handling
+      setError(cardError.message);  
     } else {
       setSuccess('Flashcard set created successfully with cards!');
       setTitle('');
       setDescription('');
-      setCards([{ term: '', definition: '' }]); // Reset the cards
+      setCards([{ term: '', definition: '' }]); 
     }
   };
 
@@ -118,9 +115,8 @@ export default function CreateSetPage() {
     setCards([...cards, { term: '', definition: '' }]);
   };
 
-  // Handle card deletion
   const handleDeleteCard = (index: number) => {
-    const updatedCards = cards.filter((_, i) => i !== index); // Remove the card at the specified index
+    const updatedCards = cards.filter((_, i) => i !== index); 
     setCards(updatedCards);
   };
 
@@ -140,11 +136,33 @@ export default function CreateSetPage() {
           onDeleteCard={handleDeleteCard}
           isPublic={isPublic}
           setIsPublic={setIsPublic}
+          formTitle="Create a Flashcard Set"
         />
-        <Button type="submit" variant="default" size="default">
+        <Button
+          type="submit"
+          style={saveButtonStyle} 
+        >
           Create Set
         </Button>
       </form>
     </div>
   );
 }
+
+const saveButtonStyle: React.CSSProperties = {
+  fontSize: '1.3em',
+  padding: '10px 20px',
+  backgroundColor: '#ff0f7b',
+  color: '#fff',
+  border: 'none',
+  borderRadius: '4px',
+  cursor: 'pointer',
+  display: 'block',
+  width: '100%',
+  marginTop: '20px',
+  transition: 'background-color 0.3s ease',
+};
+
+const saveButtonHoverStyle: React.CSSProperties = {
+  backgroundColor: '#ff2d8f',
+};
