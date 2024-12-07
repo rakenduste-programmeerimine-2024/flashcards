@@ -112,3 +112,6 @@ Kryslin Rass
 ---
 
 ## Low-fidelity wireframe
+
+![lofi 1](public/images/lofi1.jpg)
+![lofi 2](public/images/lofi2.jpg)
