@@ -56,16 +56,19 @@ export default async function HomePage() {
     console.error(favoriteError.message);
   }
 
-  const favoriteSetDetails = await Promise.all(
-    favoriteSets.map(async (favorite) => {
-      const { data: flashcardSet } = await supabase
-        .from("flashcard_set")
-        .select("*")
-        .eq("id", favorite.flashcard_set_id)
-        .single();
-      return flashcardSet;
-    })
-  );
+  const favoriteSetDetails = favoriteSets
+  ? await Promise.all(
+      favoriteSets.map(async (favorite) => {
+        const { data: flashcardSet } = await supabase
+          .from("flashcard_set")
+          .select("*")
+          .eq("id", favorite.flashcard_set_id)
+          .single();
+        return flashcardSet;
+      })
+    )
+  : [];
+
 
   const sortedFavoriteSets = favoriteSetDetails.sort((a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime());
 
