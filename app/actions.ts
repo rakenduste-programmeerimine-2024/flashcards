@@ -15,13 +15,18 @@ export const signUpAction = async (formData: FormData) => {
     return { error: "Email and password are required" }
   }
 
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      emailRedirectTo: `${origin}/auth/callback`,
-    },
-  })
+  const emailRedirectTo = process.env.NEXT_PUBLIC_SITE_URL
+  ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`
+  : undefined;  // We no longer need localhost fallback
+
+const { error } = await supabase.auth.signUp({
+  email,
+  password,
+  options: {
+    emailRedirectTo, // Use Vercel URL in production
+  },
+});
+
 
   if (error) {
     console.error(`${error.code} ${error.message}`);

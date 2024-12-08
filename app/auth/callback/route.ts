@@ -2,13 +2,14 @@ import { createClient } from "@/utils/supabase/server"
 import { NextResponse } from "next/server"
 
 export async function GET(request: Request) {
-  // The `/auth/callback` route handles the authentication callback.
-  // It exchanges an auth code for the user's session.
-  
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get("code")
-  const origin = requestUrl.origin
   const redirectTo = requestUrl.searchParams.get("redirect_to")?.toString()
+
+  // Get the current origin for the request
+  const origin = process.env.NODE_ENV === 'production'
+    ? requestUrl.origin  // Use the Vercel URL in production
+    : "http://localhost:3000"  // Use localhost during development
 
   if (code) {
     const supabase = await createClient() // Create the Supabase client with cookies
@@ -22,11 +23,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // If `redirect_to` is provided, redirect the user there after successful auth
-  if (redirectTo) {
-    return NextResponse.redirect(`${origin}${redirectTo}`)
-  }
-
-  // Default redirect to the homepage if no specific redirect URL is provided
-  return NextResponse.redirect(`${origin}/homepage`)
+  // Redirect the user to the provided URL or default to the homepage
+  const redirectUrl = redirectTo || "/homepage"
+  return NextResponse.redirect(`${origin}${redirectUrl}`)
 }
