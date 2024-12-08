@@ -31,7 +31,6 @@ export default function RootLayout({
             <div className="flex-1 w-full flex flex-col gap-20 items-center">
             <nav className="w-full flex justify-between items-center border-b border-b-foreground/10 h-16">
               <div className="flex items-center gap-5 p-3 px-5">
-                {/* Logo */}
                 <img
                   src="/images/logo.png"
                   alt="Logo"
@@ -41,7 +40,6 @@ export default function RootLayout({
                   Flashcards
                 </Link>
               </div>
-              {/* Right-side buttons and links */}
               <div className="flex gap-5 items-center p-3 px-5">
                 {!hasEnvVars ? (
                   <EnvVarWarning />
