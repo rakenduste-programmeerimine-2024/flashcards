@@ -19,15 +19,15 @@ const FlashcardForm = ({
   formTitle,
 }: {
   title: string;
-  setTitle: React.Dispatch<React.SetStateAction<string>>;
+  setTitle: (title: string) => void;
   description: string;
-  setDescription: React.Dispatch<React.SetStateAction<string>>;
+  setDescription: (description: string) => void;
   cards: Flashcard[];
   onCardChange: (index: number, field: 'term' | 'definition', value: string) => void;
   onAddCard: () => void;
   onDeleteCard: (index: number) => void;
   isPublic: boolean;
-  setIsPublic: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsPublic: (isPublic: boolean) => void;
   formTitle: string; 
 }) => {
   return (
