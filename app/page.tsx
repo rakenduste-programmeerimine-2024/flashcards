@@ -20,7 +20,7 @@ export default async function Index() {
       </h2>
       <Link href={redirectTo}>
         <Button variant="default" className="mt-6">
-          Try it out! -{">"}
+          Try It Out! -{">"}
         </Button>
       </Link>
     </main>
