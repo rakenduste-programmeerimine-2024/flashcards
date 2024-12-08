@@ -27,7 +27,7 @@ export default function EditSetPage() {
   const setId = params.setId as string;
   const [cards, setCards] = useState<Card[]>([]);
   const [flashcardSet, setFlashcardSet] = useState<FlashcardSet>({ title: '', description: '', is_public: false });
-  const [error, setError] = useState('');
+  const [error, updateError] = useState('');
   const [success, setSuccess] = useState('');
   const [newCards, setNewCards] = useState<Card[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
@@ -36,7 +36,7 @@ export default function EditSetPage() {
     const checkOwnership = async () => {
       const { data: userData, error: userError } = await supabase.auth.getUser();
       if (userError || !userData?.user) {
-        setError('You must be logged in to edit this set.');
+        updateError('You must be logged in to edit this set.');
         router.push('/login');
         return;
       }
@@ -51,12 +51,12 @@ export default function EditSetPage() {
         .single();
 
       if (setError) {
-        setError(setError.message);
+        updateError(setError.message);
         return;
       }
 
       if (set?.user_id !== currentUserId) {
-        setError('You are not authorized to edit this set.');
+        updateError('You are not authorized to edit this set.');
         router.push('/403');
         return;
       }
@@ -72,7 +72,7 @@ export default function EditSetPage() {
         .eq('flashcard_set_id', setId);
 
       if (error) {
-        setError(error.message);
+        updateError(error.message);
       } else {
         setCards(data || []);
       }
@@ -93,7 +93,7 @@ export default function EditSetPage() {
         .eq('id', setId);
   
       if (setError) {
-        setError(setError.message);
+        updateError(setError.message);
         return;
       }
   
@@ -108,7 +108,7 @@ export default function EditSetPage() {
         );
   
         if (cardsError) {
-          setError(cardsError.message);
+          updateError(cardsError.message);
           return;
         }
       }
@@ -123,7 +123,7 @@ export default function EditSetPage() {
           .eq('id', card.id);
   
         if (cardUpdateError) {
-          setError(cardUpdateError.message);
+          updateError(cardUpdateError.message);
           return;
         }
       }
@@ -135,7 +135,7 @@ export default function EditSetPage() {
         .order('created_at', { ascending: true });
   
       if (fetchError) {
-        setError(fetchError.message);
+        updateError(fetchError.message);
         return;
       }
   
@@ -143,7 +143,7 @@ export default function EditSetPage() {
       setNewCards([]); 
       setSuccess('Flashcard set and cards saved successfully!');
     } catch (err) {
-      setError('An unexpected error occurred.');
+      updateError('An unexpected error occurred.');
     }
   };
 
@@ -165,7 +165,7 @@ export default function EditSetPage() {
   const handleDeleteCard = async (cardId: string) => {
     const { error } = await supabase.from('card').delete().eq('id', cardId);
     if (error) {
-      setError(error.message);
+      updateError(error.message);
     } else {
       setCards(cards.filter((card) => card.id !== cardId));
     }
@@ -181,7 +181,7 @@ export default function EditSetPage() {
       .eq('flashcard_set_id', setId);
 
     if (deleteCardsError) {
-      setError(deleteCardsError.message);
+      updateError(deleteCardsError.message);
       return;
     }
 
@@ -191,7 +191,7 @@ export default function EditSetPage() {
       .eq('id', setId);
 
     if (deleteSetError) {
-      setError(deleteSetError.message);
+      updateError(deleteSetError.message);
     } else {
       setSuccess('Flashcard set deleted successfully!');
       router.push('/flashcards/your-sets'); 
@@ -206,12 +206,14 @@ export default function EditSetPage() {
   return (
     <div>
       <div>
-        <FlashcardForm
+      <FlashcardForm
           formTitle="Edit Flashcard Set"
           title={flashcardSet.title}
-          setTitle={(title) => setFlashcardSet({ ...flashcardSet, title })}
+          setTitle={(title) => setFlashcardSet((prev) => ({ ...prev, title: title }))}
           description={flashcardSet.description}
-          setDescription={(description) => setFlashcardSet({ ...flashcardSet, description })}
+          setDescription={(description) =>
+            setFlashcardSet((prev) => ({ ...prev, description }))
+          }
           cards={cards.concat(newCards)}
           onCardChange={(index, field, value) => {
             if (index < cards.length) {
@@ -231,8 +233,10 @@ export default function EditSetPage() {
             }
           }}
           isPublic={flashcardSet.is_public}
-          setIsPublic={(isPublic) => setFlashcardSet({ ...flashcardSet, is_public: isPublic })}
+          setIsPublic={(isPublic) => setFlashcardSet((prev) => ({ ...prev, is_public: isPublic }))}
         />
+
+
         <div style={{ display: 'flex', flexDirection: 'column', marginTop: '20px' }}>
           <button
             onClick={handleDeleteSet}
