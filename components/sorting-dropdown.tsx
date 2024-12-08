@@ -15,7 +15,7 @@ type FlashcardSet = {
   title: string
   created_date: string
   termCount: number
-  isPublic: boolean
+  is_public: boolean
 }
 
 type SortingDropdownProps = {
@@ -39,7 +39,7 @@ export default function SortingDropdown({ flashcardSets, pageTitle }: SortingDro
 
   const handleSort = (option: "Newest First" | "Oldest First" | "Alphabetical") => {
     setSortOption(option)
-    let sorted: FlashcardSet[]
+    let sorted: FlashcardSet[] = []
     if (option === "Newest First") {
       sorted = [...flashcardSets].sort(
         (a, b) => new Date(b.created_date).getTime() - new Date(a.created_date).getTime()

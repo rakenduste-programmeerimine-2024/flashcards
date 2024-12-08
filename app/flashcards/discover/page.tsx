@@ -47,14 +47,12 @@ export default async function DiscoverPage() {
 
   return (
     <div className="flex-1 w-full flex flex-col gap-12">
-      <div className="flex flex-col gap-2 items-start">
+      <div className="lex items-center gap-4">
         {flashcardSetsWithTermCount && flashcardSetsWithTermCount.length > 0 ? (
-          <div className="w-full flex flex-col gap-4">
             <SortingDropdown
               flashcardSets={flashcardSetsWithTermCount}
               pageTitle="Discover Flashcard Sets"
             />
-          </div>
         ) : (
           <p>No public flashcard sets found. Explore and discover more!</p>
         )}
