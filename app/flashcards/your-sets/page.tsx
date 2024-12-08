@@ -28,7 +28,7 @@ export default async function YourSetsPage() {
 
   const { data: flashcardSets, error } = await supabase
     .from("flashcard_set")
-    .select("id, title, user_id, created_date")
+    .select("id, title, user_id, created_date, is_public")
     .eq("user_id", user.id)
 
   if (error) {
