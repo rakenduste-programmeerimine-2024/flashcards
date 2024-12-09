@@ -9,7 +9,7 @@ export async function GET(request: Request) {
   // Get the current origin for the request
   const origin = process.env.NODE_ENV === 'production'
     ? requestUrl.origin  // Use the Vercel URL in production
-    : "http://localhost:3000"  // Use localhost during development
+    : "https://flashcards-eight-beryl.vercel.app/"  // Use localhost during development
 
   if (code) {
     const supabase = await createClient() // Create the Supabase client with cookies
